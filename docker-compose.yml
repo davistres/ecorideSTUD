@@ -1,0 +1,85 @@
+version: "3"
+services:
+    # Service PHP + Laravel
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: ecoride_app
+        restart: unless-stopped
+        working_dir: /var/www/html
+        volumes:
+            - ./:/var/www/html
+        networks:
+            - ecoride_network
+
+    # Service Nginx (serveur web)
+    nginx:
+        image: nginx:alpine
+        container_name: ecoride_nginx
+        restart: unless-stopped
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www/html
+            - ./docker/nginx/conf.d:/etc/nginx/conf.d
+        networks:
+            - ecoride_network
+
+    # Service MySQL (base de données relationnelle)
+    mysql:
+        image: mysql:8.0
+        container_name: ecoride_mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: ecoride
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_PASSWORD: dev
+            MYSQL_USER: ecoride
+        volumes:
+            - ecoride_mysql:/var/lib/mysql
+        ports:
+            - "3307:3306"
+        networks:
+            - ecoride_network
+
+    # Service MongoDB (base de données NoSQL)
+    mongodb:
+        image: mongo:latest
+        container_name: ecoride_mongodb
+        restart: unless-stopped
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ecoride
+            MONGO_INITDB_ROOT_PASSWORD: dev
+            MONGO_INITDB_DATABASE: ecoride
+        volumes:
+            - ecoride_mongodb:/data/db
+        ports:
+            - "27017:27017"
+        networks:
+            - ecoride_network
+
+    # Service PHPMyAdmin (interface pour MySQL)
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: ecoride_phpmyadmin
+        restart: unless-stopped
+        environment:
+            PMA_HOST: mysql
+            MYSQL_ROOT_PASSWORD: dev
+        ports:
+            - "8080:80"
+        networks:
+            - ecoride_network
+
+# Réseaux
+networks:
+    ecoride_network:
+        driver: bridge
+
+# Volumes
+volumes:
+    ecoride_mysql:
+        driver: local
+    ecoride_mongodb:
+        driver: local
