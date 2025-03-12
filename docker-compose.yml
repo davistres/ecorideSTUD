@@ -31,6 +31,7 @@ services:
         image: mysql:8.0
         container_name: ecoride_mysql
         restart: unless-stopped
+        command: --log-bin-trust-function-creators=1
         environment:
             MYSQL_DATABASE: ecoride
             MYSQL_ROOT_PASSWORD: root
@@ -49,8 +50,8 @@ services:
         container_name: ecoride_mongodb
         restart: unless-stopped
         environment:
-            MONGO_INITDB_ROOT_USERNAME: ecoride
-            MONGO_INITDB_ROOT_PASSWORD: dev
+            # MONGO_INITDB_ROOT_USERNAME: root
+            # MONGO_INITDB_ROOT_PASSWORD: dev
             MONGO_INITDB_DATABASE: ecoride
         volumes:
             - ecoride_mongodb:/data/db

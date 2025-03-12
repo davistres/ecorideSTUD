@@ -62,6 +62,18 @@ return [
             ]) : [],
         ],
 
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'host' => env('MONGODB_HOST', 'mongodb'),
+            'port' => env('MONGODB_PORT', 27017),
+            'database' => env('MONGODB_DATABASE', 'ecoride'),
+            # 'username' => env('MONGODB_USERNAME', 'root'),
+            # 'password' => env('MONGODB_PASSWORD', 'dev'),
+            'options' => [
+                'database' => env('MONGODB_DATABASE', 'ecoride')
+            ],
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),
