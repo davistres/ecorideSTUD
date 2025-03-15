@@ -7,6 +7,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    @php
+        use Illuminate\Support\Facades\Auth;
+    @endphp
+
     <title>{{ config('app.name', 'EcoRide') }}</title>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
@@ -35,12 +39,27 @@
                 <li><a href="{{ route('trips.index') }}">Covoiturage</a></li>
                 <li><a href="{{ route('contact') }}">Contact</a></li>
 
-                @auth
+                @if (Auth::guard('admin')->check())
                     <li>
-                        <a href="{{ route('dashboard') }}" class="user-nom">
-                            {{ Auth::user()->pseudo ?? 'Utilisateur' }}
+                        <a href="{{ route('admin.dashboard') }}" class="user-nom">
+                            ADMIN
                         </a>
                     </li>
+                @elseif(Auth::guard('employe')->check())
+                    <li>
+                        <a href="{{ route('employe.dashboard') }}" class="user-nom">
+                            {{ Auth::guard('employe')->user()->name }}
+                        </a>
+                    </li>
+                @elseif(Auth::guard('web')->check())
+                    <li>
+                        <a href="{{ route('home') }}" class="user-nom">
+                            {{ Auth::guard('web')->user()->pseudo }}
+                        </a>
+                    </li>
+                @endif
+
+                @if (Auth::guard('admin')->check() || Auth::guard('employe')->check() || Auth::guard('web')->check())
                     <li>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -49,7 +68,7 @@
                     </li>
                 @else
                     <li><a href="{{ route('login') }}" class="cta-button">Connexion</a></li>
-                @endauth
+                @endif
             </ul>
         </nav>
 
@@ -58,10 +77,16 @@
             <a href="{{ route('trips.index') }}">Covoiturage</a>
             <a href="{{ route('contact') }}">Contact</a>
 
-            @auth
-                <a href="{{ route('dashboard') }}" class="user-nom">
-                    {{ Auth::user()->pseudo ?? 'Utilisateur' }}
-                </a>
+            @if (Auth::guard('admin')->check())
+                <a href="{{ route('admin.dashboard') }}" class="user-nom">ADMIN</a>
+            @elseif(Auth::guard('employe')->check())
+                <a href="{{ route('employe.dashboard') }}"
+                    class="user-nom">{{ Auth::guard('employe')->user()->name }}</a>
+            @elseif(Auth::guard('web')->check())
+                <a href="{{ route('home') }}" class="user-nom">{{ Auth::guard('web')->user()->pseudo }}</a>
+            @endif
+
+            @if (Auth::guard('admin')->check() || Auth::guard('employe')->check() || Auth::guard('web')->check())
                 <a href="{{ route('logout') }}"
                     onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();">
                     Déconnexion
@@ -71,7 +96,7 @@
                 </form>
             @else
                 <a href="{{ route('login') }}">Connexion</a>
-            @endauth
+            @endif
 
             <div class="close-menu" id="close-menu">&times;</div>
         </div>
