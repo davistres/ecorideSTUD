@@ -1,0 +1,8 @@
+/* Importation des différents fichiers CSS */
+@import 'reset.css';
+@import 'layout.css';
+@import 'components.css';
+@import 'welcome.css';
+@import 'auth.css';
+@import 'trips.css';
+@import 'pages.css';

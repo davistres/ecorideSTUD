@@ -16,9 +16,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
 
     @if (config('app.env') === 'production')
-        <link rel="stylesheet" href="{{ secure_asset('css/style.css') }}">
+        <link rel="stylesheet" href="{{ secure_asset('css/main.css') }}">
     @else
-        <link rel="stylesheet" href="{{ url('css/style.css') }}">
+        <link rel="stylesheet" href="{{ url('css/main.css') }}">
     @endif
 </head>
 
@@ -27,7 +27,7 @@
     <header>
         <nav class="navbar">
             <div class="logo">
-                <a href="{{ route('home') }}">EcoRide</a>
+                <a href="{{ route('welcome') }}">EcoRide</a>
             </div>
             <div class="burger" id="burger">
                 <div></div>
@@ -35,7 +35,7 @@
                 <div></div>
             </div>
             <ul class="nav-links">
-                <li><a href="{{ route('home') }}">Accueil</a></li>
+                <li><a href="{{ route('welcome') }}">Accueil</a></li>
                 <li><a href="{{ route('trips.index') }}">Covoiturage</a></li>
                 <li><a href="{{ route('contact') }}">Contact</a></li>
 
@@ -73,7 +73,7 @@
         </nav>
 
         <div class="mobile-menu" id="mobile-menu">
-            <a href="{{ route('home') }}">Accueil</a>
+            <a href="{{ route('welcome') }}">Accueil</a>
             <a href="{{ route('trips.index') }}">Covoiturage</a>
             <a href="{{ route('contact') }}">Contact</a>
 

@@ -1,0 +1,86 @@
+/* Boutons et composants réutilisables */
+.cta-button, .auth-button, .search-button, .btn-details, .btn-return-home, .btn404, .suggested-date-btn {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.cta-button:hover, .auth-button:hover, .search-button:hover, .btn-details:hover, .btn-return-home:hover, .btn404:hover, .suggested-date-btn:hover {
+    background-color: #27ae60;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Messages d'erreur et info */
+.error-message {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    padding: 1rem;
+    border-left: 4px solid #e74c3c;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+}
+
+.info-message {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    padding: 1rem;
+    border-left: 4px solid #3498db;
+    border-radius: 4px;
+    margin: 1rem 0;
+    text-align: center;
+    font-weight: bold;
+}
+
+.alert-success {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.alert-danger {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: red;
+    font-weight: bold;
+}
+
+/* Inputs et formulaires communs */
+.form-group {
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Message container */
+.message-container {
+    max-width: 800px;
+    margin: 0 auto 2rem auto;
+    padding: 1rem;
+    border-radius: 8px;
+}

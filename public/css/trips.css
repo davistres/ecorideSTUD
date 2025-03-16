@@ -1,0 +1,397 @@
+/* Styles pour les pages de covoiturage */
+.covoiturage-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 100px 20px 40px;
+}
+
+.covoiturage-title {
+    color: #2c3e50;
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.covoiturage-container .search-section {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin-bottom: 3rem;
+}
+
+.covoiturage-container .search-section h2 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Titre des résultats */
+.results-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.results-title h2 {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+.results-title p {
+    color: #7f8c8d;
+    font-size: 1rem;
+}
+
+/* Liste des covoiturages */
+.covoiturage-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.covoiturage-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.covoiturage-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Section chauffeur */
+.covoiturage-driver {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    background-color: #f9f9f9;
+}
+
+.driver-photo {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #2ecc71;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.driver-info h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.driver-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+    justify-content: center;
+}
+
+.rating-value {
+    font-weight: bold;
+    color: #f39c12;
+}
+
+.rating-stars {
+    color: #f39c12;
+    letter-spacing: 2px;
+}
+
+.star {
+    display: inline-block;
+}
+
+.star.filled {
+    color: #f39c12;
+}
+
+.star.half-filled {
+    position: relative;
+    color: #f39c12;
+}
+
+.star.empty {
+    color: #dddddd;
+}
+
+/* Section détails */
+.covoiturage-details {
+    padding: 1.5rem;
+    flex: 1;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.trip-route {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.route-arrow {
+    color: #7f8c8d;
+    font-size: 1.5rem;
+}
+
+.trip-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.trip-date {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.trip-time {
+    display: flex;
+    justify-content: space-between;
+    color: #7f8c8d;
+}
+
+.trip-eco-badge {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    align-self: center;
+}
+
+.trip-eco-badge.eco {
+    background-color: rgba(46, 204, 113, 0.15);
+    color: #27ae60;
+}
+
+.trip-eco-badge.standard {
+    background-color: rgba(149, 165, 166, 0.15);
+    color: #7f8c8d;
+}
+
+/* Section réservation */
+.covoiturage-booking {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9;
+}
+
+.trip-seats {
+    font-size: 1rem;
+    color: #7f8c8d;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.trip-price {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1rem 0;
+}
+
+.price-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #2ecc71;
+}
+
+.price-per-person {
+    font-size: 0.8rem;
+    color: #95a5a6;
+    margin-top: 0.25rem;
+}
+
+.btn-details {
+    display: block;
+    width: 100%;
+    max-width: 150px;
+    padding: 0.75rem 1.5rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Message aucun résultat */
+.no-results {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.no-results p {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    margin-bottom: 0.75rem;
+}
+
+.no-results p:last-child {
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+.btn-return-home {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #3498db;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s;
+    margin-top: 1rem;
+}
+
+.btn-return-home:hover {
+    background-color: #2980b9;
+}
+
+/* Message de bienvenue */
+.welcome-message {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+    padding: 3rem 2rem;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.welcome-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+.welcome-message h2 {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.welcome-message p {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+}
+
+.welcome-tips {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 1.5rem;
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.welcome-tips h3 {
+    color: #2c3e50;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.welcome-tips ul {
+    padding-left: 1.5rem;
+}
+
+.welcome-tips li {
+    color: #7f8c8d;
+    margin-bottom: 0.5rem;
+}
+
+/* Icônes */
+[class^="icon-"] {
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+.icon-car:before {
+    content: "🚗";
+}
+
+@media (min-width: 768px) {
+    .covoiturage-card {
+        flex-direction: row;
+        align-items: stretch;
+    }
+    
+    .covoiturage-driver {
+        width: 25%;
+        border-bottom: none;
+        border-right: 1px solid #f0f0f0;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .driver-photo {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 1rem;
+    }
+    
+    .covoiturage-details {
+        width: 45%;
+        border-bottom: none;
+        border-right: 1px solid #f0f0f0;
+    }
+    
+    .covoiturage-booking {
+        width: 30%;
+    }
+}
+
+@media (max-width: 480px) {
+    .covoiturage-title {
+        font-size: 1.8rem;
+    }
+
+    .covoiturage-container .search-section {
+        padding: 1.5rem;
+    }
+
+    .trip-time {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .price-value {
+        font-size: 1.5rem;
+    }
+
+    .welcome-message {
+        padding: 2rem 1rem;
+    }
+}
