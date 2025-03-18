@@ -26,6 +26,12 @@
                 </div>
             @endif
 
+            @if (session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             <form class="login-form" id="contact-form" method="POST" action="{{ route('contact.store') }}">
                 @csrf
                 <div class="form-group">

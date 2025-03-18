@@ -45,10 +45,10 @@
                             ADMIN
                         </a>
                     </li>
-                @elseif(Auth::guard('employe')->check())
+                @elseif(session('employe_authenticated'))
                     <li>
                         <a href="{{ route('employe.dashboard') }}" class="user-nom">
-                            {{ Auth::guard('employe')->user()->name }}
+                            {{ session('employe_name') }}
                         </a>
                     </li>
                 @elseif(Auth::guard('web')->check())
@@ -59,7 +59,7 @@
                     </li>
                 @endif
 
-                @if (Auth::guard('admin')->check() || Auth::guard('employe')->check() || Auth::guard('web')->check())
+                @if (Auth::guard('admin')->check() || session('employe_authenticated') || Auth::guard('web')->check())
                     <li>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -79,14 +79,15 @@
 
             @if (Auth::guard('admin')->check())
                 <a href="{{ route('admin.dashboard') }}" class="user-nom">ADMIN</a>
-            @elseif(Auth::guard('employe')->check())
-                <a href="{{ route('employe.dashboard') }}"
-                    class="user-nom">{{ Auth::guard('employe')->user()->name }}</a>
+            @elseif(session('employe_authenticated'))
+                <a href="{{ route('employe.dashboard') }}" class="user-nom">
+                    {{ session('employe_name') }}
+                </a>
             @elseif(Auth::guard('web')->check())
                 <a href="{{ route('home') }}" class="user-nom">{{ Auth::guard('web')->user()->pseudo }}</a>
             @endif
 
-            @if (Auth::guard('admin')->check() || Auth::guard('employe')->check() || Auth::guard('web')->check())
+            @if (Auth::guard('admin')->check() || session('employe_authenticated') || Auth::guard('web')->check())
                 <a href="{{ route('logout') }}"
                     onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();">
                     Déconnexion

@@ -10,11 +10,10 @@ class LogoutController extends Controller
 {
     public function logout(Request $request)
     {
-
-        if (Auth::guard('admin')->check()) {
+        if (session('employe_authenticated')) {
+            session()->forget(['employe_id', 'employe_name', 'employe_authenticated']);
+        } else if (Auth::guard('admin')->check()) {
             Auth::guard('admin')->logout();
-        } elseif (Auth::guard('employe')->check()) {
-            Auth::guard('employe')->logout();
         } else {
             Auth::guard('web')->logout();
         }

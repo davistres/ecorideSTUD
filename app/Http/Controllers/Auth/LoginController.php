@@ -22,27 +22,36 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        // BDD
-        $databaseCredentials = [
-            'mail' => $credentials['email'],
-            'password' => $credentials['password'],
-        ];
+        // employé?
+        if ($credentials['email'] === 'employe@ecoride.fr') {
+            $employe = \App\Models\Employe::where('mail', $credentials['email'])->first();
 
-        // se connecter
-        $guards = ['admin', 'employe', 'web'];
+            if ($employe) {
+                // comparer les mots de passe
+                if (password_verify($credentials['password'], $employe->password_hash)) {
+                    session(['employe_id' => $employe->employe_id]);
+                    session(['employe_name' => $employe->name]);
+                    session(['employe_authenticated' => true]);
 
+                    $request->session()->regenerate();
+                    return redirect()->route('employe.dashboard');
+                }
+            }
+        }
+
+        // si c'est pas un EMPLOYE?
+        $guards = ['admin', 'web'];
         foreach ($guards as $guard) {
-            if (Auth::guard($guard)->attempt($databaseCredentials)) {
+            if (Auth::guard($guard)->attempt([
+                'mail' => $credentials['email'],
+                'password' => $credentials['password']
+            ])) {
                 $request->session()->regenerate();
 
-                // Etre rediriger
-                switch ($guard) {
-                    case 'admin':
-                        return redirect()->route('admin.dashboard');
-                    case 'employe':
-                        return redirect()->route('employe.dashboard');
-                    default:
-                        return redirect()->intended('/home');
+                if ($guard == 'admin') {
+                    return redirect()->route('admin.dashboard');
+                } else {
+                    return redirect()->intended('/home');
                 }
             }
         }

@@ -16,6 +16,7 @@ class Employe extends Authenticatable
     protected $fillable = ['mail', 'password_hash', 'name'];
 
     protected $hidden = ['password_hash'];
+    public $timestamps = false;
 
     public function getAuthPassword()
     {

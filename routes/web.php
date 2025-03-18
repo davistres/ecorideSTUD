@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ContactController;
 
 
 // authentification
@@ -42,11 +43,16 @@ Route::get('/home', function () {
 })->name('home');
 
 // formulaire de contact
-Route::post('/contact', function () {
-    // A FAIRE: mettre ici la logique du formulaire
-    // Pour l'instant => simple redirection avec un message de succès
-    return redirect()->route('contact')->with('success', 'Votre message a été envoyé avec succès!');
-})->name('contact.store');
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+
+
+// Vérif des covoit
+Route::get('/check-session', function () {
+    // covoit présents dans la session?
+    $hasCovoiturage = session()->has('covoiturages') && count(session('covoiturages')) > 0;
+    return response()->json(['hasCovoiturage' => $hasCovoiturage]);
+})->name('check-session');
 
 
 // Afin de voir et de tester mon site sans message d'erreur, j'ai du ajouter ces routes provisoires
@@ -57,9 +63,6 @@ Route::post('/search-covoiturage', function () {
 Route::get('/covoiturage', function () {
     return view('trips.trips');
 })->name('trips.index');
-Route::get('/contact', function () {
-    return view('contact');
-})->name('contact');
 Route::get('/mentions-legales', function () {
     return view('mentions-legales');
 })->name('mentions-legales');
