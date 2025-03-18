@@ -123,7 +123,12 @@
     </footer>
 
     <script defer src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script defer src="{{ asset('js/script.js') }}"></script>
+    <script defer src="{{ asset('js/main.js') }}"></script>
+    <script defer src="{{ asset('js/navbar.js') }}"></script>
+    <script defer src="{{ asset('js/forms.js') }}"></script>
+    <script defer src="{{ asset('js/map.js') }}"></script>
+    <script defer src="{{ asset('js/covoiturage.js') }}"></script>
+
 </body>
 
 </html>
