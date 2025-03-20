@@ -37,7 +37,7 @@
                 </div>
             @endif
 
-            <!-- Formulaire de recherche avec les nouveaux champs -->
+            <!-- Formulaire de recherche -->
             <form class="search-form" action="{{ route('search.covoiturage') }}" method="POST">
                 @csrf
                 <div class="form-group">
@@ -68,6 +68,46 @@
             <section class="covoiturage-list">
                 @foreach (session('covoiturages') as $covoiturage)
                     <div class="covoiturage-card">
+                        <div class="covoiturage-top-info">
+                            <div class="covoiturage-driver">
+                                <img src="{{ asset($covoiturage['photo_chauffeur']) }}"
+                                    alt="Photo de {{ $covoiturage['pseudo_chauffeur'] }}" class="driver-photo">
+                                <div class="driver-info">
+                                    <h3>{{ $covoiturage['pseudo_chauffeur'] }}</h3>
+                                    <div class="driver-rating">
+                                        <span class="rating-value">{{ $covoiturage['note_chauffeur'] }}</span>
+                                        <span class="rating-stars">
+                                            @if (is_numeric($covoiturage['note_chauffeur']))
+                                                @for ($i = 1; $i <= 5; $i++)
+                                                    @if ($i <= floor($covoiturage['note_chauffeur']))
+                                                        <span class="star filled">★</span>
+                                                    @elseif($i - 0.5 <= $covoiturage['note_chauffeur'])
+                                                        <span class="star half-filled">⭐</span>
+                                                    @else
+                                                        <span class="star empty">☆</span>
+                                                    @endif
+                                                @endfor
+                                            @else
+                                                <span>Nouveau conducteur</span>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="covoiturage-booking-info">
+                                <div class="trip-seats">
+                                    <i class="icon-user"></i>
+                                    <span>{{ $covoiturage['places_restantes'] }}
+                                        {{ $covoiturage['places_restantes'] > 1 ? 'places disponibles' : 'place disponible' }}</span>
+                                </div>
+                                <div class="trip-price">
+                                    <span class="price-value">{{ $covoiturage['prix'] }} crédits</span>
+                                    <span class="price-per-person">par personne</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="covoiturage-driver">
                             <img src="{{ asset($covoiturage['photo_chauffeur']) }}"
                                 alt="Photo de {{ $covoiturage['pseudo_chauffeur'] }}" class="driver-photo">
@@ -94,17 +134,19 @@
                             </div>
                         </div>
 
-                        <div class="covoiturage-details">
-                            <div class="trip-route">
-                                <span class="from">{{ $covoiturage['lieu_depart'] }}</span>
-                                <span class="route-arrow">→</span>
-                                <span class="to">{{ $covoiturage['lieu_arrivee'] }}</span>
-                            </div>
 
-                            <div class="trip-info">
-                                <div class="trip-date">
-                                    <i class="icon-calendar"></i>
-                                    {{ date('d/m/Y', strtotime($covoiturage['date_depart'])) }}
+                        <div class="covoiturage-details">
+                            <div class="trip-info-container">
+                                <div class="trip-info-left">
+                                    <div class="trip-route">
+                                        <span class="from">{{ $covoiturage['lieu_depart'] }}</span>
+                                        <span class="route-arrow">→</span>
+                                        <span class="to">{{ $covoiturage['lieu_arrivee'] }}</span>
+                                    </div>
+                                    <div class="trip-date">
+                                        <i class="icon-calendar"></i>
+                                        {{ date('d/m/Y', strtotime($covoiturage['date_depart'])) }}
+                                    </div>
                                 </div>
                                 <div class="trip-time">
                                     <span class="departure-time">
@@ -127,6 +169,7 @@
                             </div>
                         </div>
 
+
                         <div class="covoiturage-booking">
                             <div class="trip-seats">
                                 <i class="icon-user"></i>
@@ -135,12 +178,29 @@
                             </div>
 
                             <div class="trip-price">
-                                <span class="price-value">{{ number_format($covoiturage['prix'], 2) }} €</span>
+                                <span class="price-value">{{ $covoiturage['prix'] }} crédits</span>
                                 <span class="price-per-person">par personne</span>
                             </div>
 
+                            <div class="booking-buttons">
+                                <a href="{{ route('trips.show', ['id' => $covoiturage['id'] ?? 1]) }}"
+                                    class="btn-details">
+                                    Détails
+                                </a>
+                                <a href="{{ route('trips.participate', ['id' => $covoiturage['id'] ?? 1]) }}"
+                                    class="btn-participate">
+                                    Participer
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="mobile-buttons">
                             <a href="{{ route('trips.show', ['id' => $covoiturage['id'] ?? 1]) }}" class="btn-details">
                                 Détails
+                            </a>
+                            <a href="{{ route('trips.participate', ['id' => $covoiturage['id'] ?? 1]) }}"
+                                class="btn-participate">
+                                Participer
                             </a>
                         </div>
                     </div>
@@ -166,11 +226,36 @@
                 </div>
                 <section>
                     <div class="covoiturage-card">
+                        <div class="covoiturage-top-info">
+                            <div class="covoiturage-driver">
+                                <img src="{{ asset('images/default-avatar.jpg') }}" alt="Photo de JohnDoe"
+                                    class="driver-photo">
+                                <div class="driver-info">
+                                    <h3>JohnDoe</h3>
+                                    <div class="driver-rating">
+                                        <span class="rating-value">4.8</span>
+                                        <span class="rating-stars">⭐⭐⭐⭐⭐</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="covoiturage-booking-info">
+                                <div class="trip-seats">
+                                    <i class="icon-user"></i>
+                                    <span>3 places</span>
+                                </div>
+                                <div class="trip-price">
+                                    <span class="price-value">27 crédits</span>
+                                    <span class="price-per-person">par personne</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="covoiturage-driver">
-                            <img src="{{ asset('images/default-avatar.jpg') }}" alt="Photo de Jean Dupont"
+                            <img src="{{ asset('images/default-avatar.jpg') }}" alt="Photo de JohnDoe"
                                 class="driver-photo">
                             <div class="driver-info">
-                                <h3>Jean Dupont</h3>
+                                <h3>JohnDoe</h3>
                                 <div class="driver-rating">
                                     <span class="rating-value">4.8</span>
                                     <span class="rating-stars">⭐⭐⭐⭐⭐</span>
@@ -179,16 +264,17 @@
                         </div>
 
                         <div class="covoiturage-details">
-                            <div class="trip-route">
-                                <span class="from">Rennes</span>
-                                <span class="route-arrow">→</span>
-                                <span class="to">Paris</span>
-                            </div>
-
-                            <div class="trip-info">
-                                <div class="trip-date">
-                                    <i class="icon-calendar"></i>
-                                    25/02/2025
+                            <div class="trip-info-container">
+                                <div class="trip-info-left">
+                                    <div class="trip-route">
+                                        <span class="from">Lyon</span>
+                                        <span class="route-arrow">→</span>
+                                        <span class="to">Paris</span>
+                                    </div>
+                                    <div class="trip-date">
+                                        <i class="icon-calendar"></i>
+                                        25/03/2025
+                                    </div>
                                 </div>
                                 <div class="trip-time">
                                     <span class="departure-time">
@@ -214,12 +300,26 @@
                             </div>
 
                             <div class="trip-price">
-                                <span class="price-value">27.00 €</span>
+                                <span class="price-value">27 crédits</span>
                                 <span class="price-per-person">par personne</span>
                             </div>
 
+                            <div class="booking-buttons">
+                                <a href="{{ route('trips.show', ['id' => 33]) }}" class="btn-details">
+                                    Détails
+                                </a>
+                                <a href="{{ route('trips.participate', ['id' => 33]) }}" class="btn-participate">
+                                    Participer
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="mobile-buttons">
                             <a href="{{ route('trips.show', ['id' => 33]) }}" class="btn-details">
                                 Détails
+                            </a>
+                            <a href="{{ route('trips.participate', ['id' => 33]) }}" class="btn-participate">
+                                Participer
                             </a>
                         </div>
                     </div>

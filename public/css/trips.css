@@ -54,6 +54,7 @@
     margin-bottom: 2rem;
 }
 
+/* Card de base */
 .covoiturage-card {
     background-color: white;
     border-radius: 10px;
@@ -67,6 +68,50 @@
 .covoiturage-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Pour mobile uniquement */
+.covoiturage-top-info {
+    display: flex;
+    justify-content: space-between;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 1rem;
+}
+
+.covoiturage-top-info .covoiturage-driver {
+    width: 50%;
+    display: flex;
+    padding: 0;
+    background-color: transparent;
+    border: none;
+}
+
+.covoiturage-top-info .driver-photo {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 0.5rem;
+}
+
+.covoiturage-booking-info {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.covoiturage-booking-info .trip-seats {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.covoiturage-booking-info .price-value {
+    font-size: 1.3rem;
+}
+
+.covoiturage-booking-info .price-per-person {
+    font-size: 0.7rem;
 }
 
 /* Section chauffeur */
@@ -139,12 +184,24 @@
     justify-content: center;
 }
 
+/* info de trajet */
+.trip-info-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.trip-info-left {
+    display: flex;
+    flex-direction: column;
+}
+
 .trip-route {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
     font-size: 1.2rem;
     font-weight: 500;
 }
@@ -158,19 +215,21 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    width: 100%;
 }
 
 .trip-date {
     font-size: 1.1rem;
     font-weight: 500;
     color: #2c3e50;
-    text-align: center;
+    text-align: left;
     margin-bottom: 0.5rem;
 }
 
 .trip-time {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 0.5rem;
     color: #7f8c8d;
 }
 
@@ -232,6 +291,14 @@
     margin-top: 0.25rem;
 }
 
+/* Boutons */
+.booking-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
 .btn-details {
     display: block;
     width: 100%;
@@ -239,9 +306,180 @@
     padding: 0.75rem 1.5rem;
     text-align: center;
     font-weight: 500;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
 }
 
-/* Message aucun résultat */
+.btn-participate {
+    display: block;
+    width: 100%;
+    max-width: 150px;
+    padding: 0.75rem 1.5rem;
+    text-align: center;
+    font-weight: 500;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-details:hover, .btn-participate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.btn-details:hover {
+    background-color: #27ae60;
+}
+
+.btn-participate:hover {
+    background-color: #2980b9;
+}
+
+.mobile-buttons {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-top: 1px solid #f0f0f0;
+}
+
+.mobile-buttons .btn-details,
+.mobile-buttons .btn-participate {
+    width: 48%;
+    padding: 0.75rem 0;
+    max-width: none;
+}
+
+/* Icônes */
+[class^="icon-"] {
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+.icon-car:before {
+    content: "🚗";
+}
+
+/* Partie ORDI (grands écrans) ////////////////////////////////// */
+/* Les cacher en mobile */
+@media (max-width: 767px) {
+    .covoiturage-driver:not(.covoiturage-top-info .covoiturage-driver),
+    .covoiturage-booking {
+        display: none;
+    }
+}
+
+/* Les cacher en ORDI */
+@media (min-width: 768px) {
+    .covoiturage-top-info,
+    .mobile-buttons {
+        display: none;
+    }
+
+    .covoiturage-card {
+        flex-direction: row;
+        align-items: stretch;
+    }
+
+    .covoiturage-driver {
+        width: 25%;
+        border-bottom: none;
+        border-right: 1px solid #f0f0f0;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .driver-photo {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 1rem;
+    }
+
+    /* Mise en page ORDI/desktop */
+    .trip-info-container {
+        display: block;
+    }
+
+    .trip-route {
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .trip-date {
+        text-align: center;
+    }
+
+    .trip-time {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .covoiturage-details {
+        width: 45%;
+        border-bottom: none;
+        border-right: 1px solid #f0f0f0;
+    }
+
+    .covoiturage-booking {
+        width: 30%;
+        display: flex;
+    }
+
+    .booking-buttons {
+        align-items: center;
+    }
+}
+
+/* Adaptation pour les très petits écrans/////////////////// */
+@media (max-width: 480px) {
+    .covoiturage-title {
+        font-size: 1.8rem;
+    }
+
+    .covoiturage-container .search-section {
+        padding: 1.5rem;
+    }
+
+    .price-value {
+        font-size: 1.5rem;
+    }
+
+    .welcome-message {
+        padding: 2rem 1rem;
+    }
+
+    .trip-info-container {
+        flex-direction: column;
+    }
+
+    .covoiturage-top-info {
+        flex-direction: column;
+    }
+
+    .covoiturage-top-info .covoiturage-driver {
+        width: 100%;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .covoiturage-booking-info {
+        width: 100%;
+        align-items: center;
+    }
+}
+
+/* Autre régle CSS */
 .no-results {
     background-color: white;
     border-radius: 10px;
@@ -278,7 +516,6 @@
     background-color: #2980b9;
 }
 
-/* Message de bienvenue */
 .welcome-message {
     background-color: white;
     border-radius: 10px;
@@ -328,70 +565,4 @@
 .welcome-tips li {
     color: #7f8c8d;
     margin-bottom: 0.5rem;
-}
-
-/* Icônes */
-[class^="icon-"] {
-    display: inline-block;
-    margin-right: 0.5rem;
-}
-
-.icon-car:before {
-    content: "🚗";
-}
-
-@media (min-width: 768px) {
-    .covoiturage-card {
-        flex-direction: row;
-        align-items: stretch;
-    }
-    
-    .covoiturage-driver {
-        width: 25%;
-        border-bottom: none;
-        border-right: 1px solid #f0f0f0;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-    }
-    
-    .driver-photo {
-        width: 100px;
-        height: 100px;
-        margin-bottom: 1rem;
-    }
-    
-    .covoiturage-details {
-        width: 45%;
-        border-bottom: none;
-        border-right: 1px solid #f0f0f0;
-    }
-    
-    .covoiturage-booking {
-        width: 30%;
-    }
-}
-
-@media (max-width: 480px) {
-    .covoiturage-title {
-        font-size: 1.8rem;
-    }
-
-    .covoiturage-container .search-section {
-        padding: 1.5rem;
-    }
-
-    .trip-time {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .price-value {
-        font-size: 1.5rem;
-    }
-
-    .welcome-message {
-        padding: 2rem 1rem;
-    }
 }

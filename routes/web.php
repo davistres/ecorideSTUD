@@ -57,15 +57,13 @@ Route::get('/check-session', function () {
 
 // Afin de voir et de tester mon site sans message d'erreur, j'ai du ajouter ces routes provisoires
 // La majeur partie son référencées dans le menu
-Route::post('/search-covoiturage', function () {
-    return redirect()->route('trips.index');
-})->name('search.covoiturage');
-Route::get('/covoiturage', function () {
-    return view('trips.trips');
-})->name('trips.index');
 Route::get('/mentions-legales', function () {
     return view('mentions-legales');
 })->name('mentions-legales');
-Route::get('/covoiturage/{id}', function ($id) {
-    return view('trips.show', ['id' => $id]);
-})->name('trips.show');
+
+
+// Routes pour les covoit
+Route::get('/covoiturage', 'App\Http\Controllers\TripsController@index')->name('trips.index');
+Route::post('/search-covoiturage', 'App\Http\Controllers\TripsController@search')->name('search.covoiturage');
+Route::get('/covoiturage/{id}', 'App\Http\Controllers\TripsController@show')->name('trips.show');
+Route::get('/covoiturage/{id}/participate', 'App\Http\Controllers\TripsController@participate')->name('trips.participate');
