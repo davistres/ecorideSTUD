@@ -13,7 +13,9 @@
 
     <title>{{ config('app.name', 'EcoRide') }}</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />  -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 
     @if (config('app.env') === 'production')
         <link rel="stylesheet" href="{{ secure_asset('css/main.css') }}">
@@ -45,10 +47,10 @@
                             ADMIN
                         </a>
                     </li>
-                @elseif(session('employe_authenticated'))
+                @elseif(Auth::guard('employe')->check())
                     <li>
                         <a href="{{ route('employe.dashboard') }}" class="user-nom">
-                            {{ session('employe_name') }}
+                            {{ Auth::guard('employe')->user()->name }}
                         </a>
                     </li>
                 @elseif(Auth::guard('web')->check())
@@ -59,7 +61,7 @@
                     </li>
                 @endif
 
-                @if (Auth::guard('admin')->check() || session('employe_authenticated') || Auth::guard('web')->check())
+                @if (Auth::guard('admin')->check() || Auth::guard('employe')->check() || Auth::guard('web')->check())
                     <li>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -67,36 +69,34 @@
                         </form>
                     </li>
                 @else
-                    <li><a href="{{ route('login') }}" class="cta-button">Connexion</a></li>
+                    <a href="{{ route('login') }}" class="cta-button">Connexion</a>
                 @endif
             </ul>
         </nav>
 
         <div class="mobile-menu" id="mobile-menu">
-            <a href="{{ route('welcome') }}">Accueil</a>
-            <a href="{{ route('trips.index') }}">Covoiturage</a>
-            <a href="{{ route('contact') }}">Contact</a>
+            <a href="{{ route('welcome') }}" class="cta-button">Accueil</a>
+            <a href="{{ route('trips.index') }}" class="cta-button">Covoiturage</a>
+            <a href="{{ route('contact') }}" class="cta-button">Contact</a>
 
             @if (Auth::guard('admin')->check())
-                <a href="{{ route('admin.dashboard') }}" class="user-nom">ADMIN</a>
-            @elseif(session('employe_authenticated'))
-                <a href="{{ route('employe.dashboard') }}" class="user-nom">
-                    {{ session('employe_name') }}
+                <a href="{{ route('admin.dashboard') }}" class="cta-button user-identifier">ADMIN</a>
+            @elseif(Auth::guard('employe')->check())
+                <a href="{{ route('employe.dashboard') }}" class="cta-button user-identifier">
+                    {{ Auth::guard('employe')->user()->name }}
                 </a>
             @elseif(Auth::guard('web')->check())
-                <a href="{{ route('home') }}" class="user-nom">{{ Auth::guard('web')->user()->pseudo }}</a>
+                <a href="{{ route('home') }}"
+                    class="cta-button user-identifier">{{ Auth::guard('web')->user()->pseudo }}</a>
             @endif
 
-            @if (Auth::guard('admin')->check() || session('employe_authenticated') || Auth::guard('web')->check())
-                <a href="{{ route('logout') }}"
-                    onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();">
-                    Déconnexion
-                </a>
-                <form id="logout-form-mobile" action="{{ route('logout') }}" method="POST" style="display: none;">
+            @if (Auth::guard('admin')->check() || Auth::guard('employe')->check() || Auth::guard('web')->check())
+                <form method="POST" action="{{ route('logout') }}" class="mobile-logout-form">
                     @csrf
+                    <button type="submit" class="cta-button">Déconnexion</button>
                 </form>
             @else
-                <a href="{{ route('login') }}">Connexion</a>
+                <a href="{{ route('login') }}" class="cta-button">Connexion</a>
             @endif
 
             <div class="close-menu" id="close-menu">&times;</div>
@@ -122,13 +122,15 @@
         </div>
     </footer>
 
-    <script defer src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <!-- <script defer src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script> -->
     <script defer src="{{ asset('js/main.js') }}"></script>
     <script defer src="{{ asset('js/navbar.js') }}"></script>
     <script defer src="{{ asset('js/forms.js') }}"></script>
-    <script defer src="{{ asset('js/map.js') }}"></script>
+    <!-- <script defer src="{{ asset('js/map.js') }}"></script> -->
     <script defer src="{{ asset('js/covoiturage.js') }}"></script>
-
+    <script src="{{ asset('js/dashboard.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    @yield('scripts')
 </body>
 
 </html>

@@ -27,4 +27,10 @@ class Employe extends Authenticatable
     {
         return $this->mail;
     }
+
+    public function setPasswordAttribute($value)
+{
+    $this->attributes['password_hash'] = $value;
+}
+
 }

@@ -1,4 +1,4 @@
-/* Styles pour les pages de covoiturage */
+/* Pages covoiturage = trips.blade.php */
 .covoiturage-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -27,7 +27,7 @@
     text-align: center;
 }
 
-/* Titre des résultats */
+/* Titre */
 .results-title {
     display: flex;
     justify-content: space-between;
@@ -292,21 +292,13 @@
 }
 
 /* Boutons */
-.booking-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    width: 100%;
-}
-
-.btn-details {
+.btn-base {
     display: block;
     width: 100%;
     max-width: 150px;
     padding: 0.75rem 1.5rem;
     text-align: center;
     font-weight: 500;
-    background-color: #2ecc71;
     color: white;
     border: none;
     border-radius: 5px;
@@ -315,33 +307,33 @@
     transition: all 0.3s ease;
 }
 
-.btn-participate {
-    display: block;
-    width: 100%;
-    max-width: 150px;
-    padding: 0.75rem 1.5rem;
-    text-align: center;
-    font-weight: 500;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.btn-details:hover, .btn-participate:hover {
+.btn-base:hover {
     transform: translateY(-2px);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Styles spécifiques pour chaque type de bouton */
+.btn-details {
+    background-color: #2ecc71;
 }
 
 .btn-details:hover {
     background-color: #27ae60;
 }
 
+.btn-participate {
+    background-color: #3498db;
+}
+
 .btn-participate:hover {
     background-color: #2980b9;
+}
+
+.booking-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
 }
 
 .mobile-buttons {
@@ -352,21 +344,16 @@
     border-top: 1px solid #f0f0f0;
 }
 
-.mobile-buttons .btn-details,
-.mobile-buttons .btn-participate {
+.mobile-buttons .btn-base {
     width: 48%;
     padding: 0.75rem 0;
     max-width: none;
 }
 
-/* Icônes */
-[class^="icon-"] {
-    display: inline-block;
-    margin-right: 0.5rem;
-}
-
+/* Icône spécifique pour la voiture */
 .icon-car:before {
     content: "🚗";
+    margin-right: 0.5rem;
 }
 
 /* Partie ORDI (grands écrans) ////////////////////////////////// */

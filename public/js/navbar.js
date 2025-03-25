@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    window.addEventListener("resize", () => {
+    window.addEventListener("resize", function() {
         if (window.innerWidth >= 768) {
             mobileMenu?.classList.remove("active");
             isMenuOpen = false;

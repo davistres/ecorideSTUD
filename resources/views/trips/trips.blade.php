@@ -9,19 +9,19 @@
         <section class="search-section">
             <!-- Gestion des messages -->
             @if (session('error'))
-                <div class="error-message alert alert-danger">
+                <div class="error-message">
                     {{ session('error') }}
                 </div>
             @endif
 
             @if (session('success'))
-                <div class="success-message alert alert-success">
+                <div class="alert-success">
                     {{ session('success') }}
                 </div>
             @endif
 
             @if (session('info'))
-                <div class="info-message alert alert-info">
+                <div class="info-message">
                     {{ session('info') }}
 
                     @if (session('suggested_date'))
@@ -184,22 +184,23 @@
 
                             <div class="booking-buttons">
                                 <a href="{{ route('trips.show', ['id' => $covoiturage['id'] ?? 1]) }}"
-                                    class="btn-details">
+                                    class="btn-base btn-details">
                                     Détails
                                 </a>
                                 <a href="{{ route('trips.participate', ['id' => $covoiturage['id'] ?? 1]) }}"
-                                    class="btn-participate">
+                                    class="btn-base btn-participate">
                                     Participer
                                 </a>
                             </div>
                         </div>
 
                         <div class="mobile-buttons">
-                            <a href="{{ route('trips.show', ['id' => $covoiturage['id'] ?? 1]) }}" class="btn-details">
+                            <a href="{{ route('trips.show', ['id' => $covoiturage['id'] ?? 1]) }}"
+                                class="btn-base btn-details">
                                 Détails
                             </a>
                             <a href="{{ route('trips.participate', ['id' => $covoiturage['id'] ?? 1]) }}"
-                                class="btn-participate">
+                                class="btn-base btn-participate">
                                 Participer
                             </a>
                         </div>
@@ -305,20 +306,21 @@
                             </div>
 
                             <div class="booking-buttons">
-                                <a href="{{ route('trips.show', ['id' => 33]) }}" class="btn-details">
+                                <a href="{{ route('trips.show', ['id' => 33]) }}" class="btn-base btn-details">
                                     Détails
                                 </a>
-                                <a href="{{ route('trips.participate', ['id' => 33]) }}" class="btn-participate">
+                                <a href="{{ route('trips.participate', ['id' => 33]) }}"
+                                    class="btn-base btn-participate">
                                     Participer
                                 </a>
                             </div>
                         </div>
 
                         <div class="mobile-buttons">
-                            <a href="{{ route('trips.show', ['id' => 33]) }}" class="btn-details">
+                            <a href="{{ route('trips.show', ['id' => 33]) }}" class="btn-base btn-details">
                                 Détails
                             </a>
-                            <a href="{{ route('trips.participate', ['id' => 33]) }}" class="btn-participate">
+                            <a href="{{ route('trips.participate', ['id' => 33]) }}" class="btn-base btn-participate">
                                 Participer
                             </a>
                         </div>

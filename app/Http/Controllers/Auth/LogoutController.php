@@ -8,12 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class LogoutController extends Controller
 {
+
     public function logout(Request $request)
     {
-        if (session('employe_authenticated')) {
-            session()->forget(['employe_id', 'employe_name', 'employe_authenticated']);
-        } else if (Auth::guard('admin')->check()) {
+        if (Auth::guard('admin')->check()) {
             Auth::guard('admin')->logout();
+        } else if (Auth::guard('employe')->check()) {
+            Auth::guard('employe')->logout();
         } else {
             Auth::guard('web')->logout();
         }

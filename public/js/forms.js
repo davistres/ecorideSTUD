@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     // Validation inscription
     const passwordInput = document.getElementById("password");
-    const confirmPasswordInput = document.getElementById("confirm-password");
+    const confirmPasswordInput = document.getElementById("password-confirm");
     const registerForm = document.querySelector(".auth-form");
 
     function validatePasswords() {

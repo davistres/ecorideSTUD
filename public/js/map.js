@@ -1,10 +1,16 @@
  // Je ne sais pas si je vais m'en servir pour cette version du projet
-// Dans un première version du projet, j'ai utilisé OpenStreetMap pour afficher l'itinéraire entre deux villes après une recherche.
-// Mais au final, ce n'est pas obligatoire... Sauf pour l'UX... Donc, à voir si j'ai le temps... Pas de le faire (car ça je peux)... Mais de le faire bien SANS PERDRE DE TEMPS
-// Sinon, je ne le ferai pas!
+// Dans une première version du projet, j'ai utilisé OpenStreetMap pour afficher l'itinéraire entre deux villes après une recherche.
+// Mais au final, ce n'est pas obligatoire... Sauf pour l'UX... Donc, à voir si j'ai le temps de le faire bien.
 
+/* Si je change d'avis, penser à décommenter aussi le code dans app.blade.php:
+<script defer src="{{ asset('js/map.js') }}"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+<script defer src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+*/
 
 document.addEventListener("DOMContentLoaded", function () {
+    /* Désactivé pour le moment
+
     // Initialisation de la carte
     const mapElement = document.getElementById("map");
     if (mapElement) {
@@ -89,4 +95,5 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
     }
+        */
 });

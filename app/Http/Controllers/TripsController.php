@@ -67,7 +67,7 @@ class TripsController extends Controller
                 ->with('error', 'Aucun trajet trouvé entre ces villes.');
         }
 
-        // Pas de photo? => utiliser une image par défaut (A ne pas oublier)////////////////////////////////
+        // Pas de photo? => utiliser une image par défaut (A ne pas oublier ou à supprimer)////////////////////////////////
         $covoiturages = $covoiturages->map(function ($item) {
             if (empty($item->photo_chauffeur)) {
                 $item->photo_chauffeur = 'images/default-avatar.jpg';

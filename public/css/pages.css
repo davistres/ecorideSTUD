@@ -9,35 +9,9 @@
     margin: 100px 0 auto 0;
 }
 
-.btn404 {
-    display: inline-block;
-    padding: 0.8rem 1.5rem;
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    text-decoration: none;
-}
+
 
 /* Contact */
-#contact-form textarea {
-    width: 100%;
-    padding: 0.5rem;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    resize: vertical;
-    min-height: 100px;
-}
-
-#contact-form select {
-    width: 100%;
-    padding: 0.5rem;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    background-color: white;
-}
-
 .login-section {
     max-width: 600px;
     margin: 0px auto 100px auto;

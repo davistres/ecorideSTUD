@@ -11,21 +11,21 @@
     <section class="search-section">
         <h1>Rechercher un itinéraire</h1>
 
-        @if (isset($_GET['error']) || isset($_GET['suggested_date']))
+        @if (request()->has('error') || request()->has('suggested_date'))
             <div class="message-container">
-                @if (isset($_GET['error']))
-                    <div class="error-message">{{ $_GET['error'] }}</div>
+                @if (request()->has('error'))
+                    <div class="error-message">{{ request('error') }}</div>
                 @endif
 
-                @if (isset($_GET['suggested_date']))
+                @if (request()->has('suggested_date'))
                     <div class="info-message">
                         Aucun trajet trouvé pour la date sélectionnée.
                         <form action="{{ route('search.covoiturage') }}" method="POST" class="suggested-date-form">
                             @csrf
-                            <input type="hidden" name="lieu_depart" value="{{ $_GET['departure'] ?? '' }}">
-                            <input type="hidden" name="lieu_arrivee" value="{{ $_GET['arrival'] ?? '' }}">
-                            <input type="hidden" name="date" value="{{ $_GET['suggested_date'] }}">
-                            Essayez plutôt le <strong>{{ date('d/m/Y', strtotime($_GET['suggested_date'])) }}</strong>
+                            <input type="hidden" name="lieu_depart" value="{{ request('departure', '') }}">
+                            <input type="hidden" name="lieu_arrivee" value="{{ request('arrival', '') }}">
+                            <input type="hidden" name="date" value="{{ request('suggested_date') }}">
+                            Essayez plutôt le <strong>{{ date('d/m/Y', strtotime(request('suggested_date'))) }}</strong>
                             <button type="submit" class="suggested-date-btn">Rechercher à cette date</button>
                         </form>
                     </div>
@@ -38,16 +38,16 @@
             <div class="form-group">
                 <label for="departure">Départ</label>
                 <input type="text" id="departure" name="lieu_depart" placeholder="Ville de départ" required
-                    value="{{ $_GET['departure'] ?? '' }}">
+                    value="{{ request('departure', '') }}">
             </div>
             <div class="form-group">
                 <label for="arrival">Arrivée</label>
                 <input type="text" id="arrival" name="lieu_arrivee" placeholder="Ville d'arrivée" required
-                    value="{{ $_GET['arrival'] ?? '' }}">
+                    value="{{ request('arrival', '') }}">
             </div>
             <div class="form-group">
                 <label for="date">Date</label>
-                <input type="date" id="date" name="date" required value="{{ $_GET['date'] ?? '' }}">
+                <input type="date" id="date" name="date" required value="{{ request('date', '') }}">
             </div>
             <button type="submit" class="search-button">Rechercher un trajet</button>
         </form>

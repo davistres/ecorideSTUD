@@ -35,10 +35,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Vérif au chargement
     await checkCovoiturageSession();
 
-    // Vérif de session => recherche
     const searchForm = document.querySelector(".search-form");
     if (searchForm) {
-        searchForm.addEventListener("submit", async () => {
+        searchForm.addEventListener("submit", async function() {
+            // A faire => logique pour rafrachir la page
         });
     }
 

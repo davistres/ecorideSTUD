@@ -14,7 +14,6 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    //connexion
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -22,38 +21,25 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        // employé?
-        if ($credentials['email'] === 'employe@ecoride.fr') {
-            $employe = \App\Models\Employe::where('mail', $credentials['email'])->first();
+        $email = $credentials['email'];
+        $password = $credentials['password'];
 
-            if ($employe) {
-                // comparer les mots de passe
-                if (password_verify($credentials['password'], $employe->password_hash)) {
-                    session(['employe_id' => $employe->employe_id]);
-                    session(['employe_name' => $employe->name]);
-                    session(['employe_authenticated' => true]);
-
-                    $request->session()->regenerate();
-                    return redirect()->route('employe.dashboard');
-                }
-            }
+        // Admin
+        if (Auth::guard('admin')->attempt(['mail' => $email, 'password' => $password])) {
+            $request->session()->regenerate();
+            return redirect()->route('admin.dashboard');
         }
 
-        // si c'est pas un EMPLOYE?
-        $guards = ['admin', 'web'];
-        foreach ($guards as $guard) {
-            if (Auth::guard($guard)->attempt([
-                'mail' => $credentials['email'],
-                'password' => $credentials['password']
-            ])) {
-                $request->session()->regenerate();
+        // Employé
+        if (Auth::guard('employe')->attempt(['mail' => $email, 'password' => $password])) {
+            $request->session()->regenerate();
+            return redirect()->route('employe.dashboard');
+}
 
-                if ($guard == 'admin') {
-                    return redirect()->route('admin.dashboard');
-                } else {
-                    return redirect()->intended('/home');
-                }
-            }
+        // Utilisateur normal
+        if (Auth::guard('web')->attempt(['mail' => $email, 'password' => $password])) {
+            $request->session()->regenerate();
+            return redirect()->intended('/home');
         }
 
         return back()->withErrors([
