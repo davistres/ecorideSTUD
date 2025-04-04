@@ -50,7 +50,6 @@
                         </option>
                         <option value="reservation" {{ old('subject') == 'reservation' ? 'selected' : '' }}>Problème de
                             réservation</option>
-                        <option value="feedback" {{ old('subject') == 'feedback' ? 'selected' : '' }}>Feedback</option>
                         <option value="other" {{ old('subject') == 'other' ? 'selected' : '' }}>Autre</option>
                     </select>
                 </div>

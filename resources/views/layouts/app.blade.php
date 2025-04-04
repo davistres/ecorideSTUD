@@ -15,7 +15,6 @@
 
     <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />  -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 
     @if (config('app.env') === 'production')
         <link rel="stylesheet" href="{{ secure_asset('css/main.css') }}">

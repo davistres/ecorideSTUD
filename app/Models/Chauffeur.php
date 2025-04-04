@@ -20,7 +20,6 @@ class Chauffeur extends Model
         'pref_smoke',
         'pref_pet',
         'pref_libre',
-        'idphoto',
         'moy_note',
     ];
 

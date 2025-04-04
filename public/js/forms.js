@@ -60,4 +60,22 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    // Validation du formulaire de satisfaction
+    const satisfactionForm = document.querySelector('form[action*="satisfaction.store"]');
+    if (satisfactionForm) {
+         const feelingRadios = satisfactionForm.querySelectorAll('input[name="feeling"]');
+         const commentField = satisfactionForm.querySelector('#comment');
+
+         feelingRadios.forEach(radio => {
+             radio.addEventListener('change', function() {
+                 if (this.value === '0') { // Trajet mal passé
+                     commentField.setAttribute('required', 'required');
+                 } else {
+                     commentField.removeAttribute('required');
+                 }
+             });
+         });
+    }
+
 });

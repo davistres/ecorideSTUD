@@ -43,31 +43,6 @@
 }
 
 /* Spécifique à l'inscription */
-.password-info {
-    font-size: 0.8rem;
-    color: #666;
-    margin-top: 0.5rem;
-    display: block;
-}
-
-.password-requirements {
-    padding: 5px 20px;
-    font-size: 0.8rem;
-    color: #666;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.password-requirements li {
-    text-align: left;
-}
-
-.deca {
-    margin-top: 1rem;
-}
-
-/* Validation visuelle */
 #password:invalid {
     border-color: #e74c3c;
 }

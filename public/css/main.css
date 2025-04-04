@@ -1,4 +1,5 @@
 /* Importation des différents fichiers CSS */
+@import 'dashboard.css';
 @import 'reset.css';
 @import 'layout.css';
 @import 'components.css';

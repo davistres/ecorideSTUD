@@ -7,6 +7,50 @@ document.addEventListener("DOMContentLoaded", function() {
     detectBrowserCompatibility();
 });
 
+
+// Notification
+function showNotification(message, type = 'info') {
+    if (!message) return;
+
+    let notificationContainer = document.querySelector('.notification-container');
+
+    if (!notificationContainer) {
+        notificationContainer = document.createElement('div');
+        notificationContainer.className = 'notification-container';
+        document.body.appendChild(notificationContainer);
+    }
+
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-message">${message}</div>
+        <button class="notification-close">×</button>
+    `;
+
+    notificationContainer.appendChild(notification);
+
+    const closeBtn = notification.querySelector('.notification-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            notification.style.animation = 'slideOut 0.3s ease-in forwards';
+            setTimeout(function() {
+                notification.remove();
+            }, 300);
+        });
+    }
+
+    setTimeout(function() {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideOut 0.3s ease-in forwards';
+            setTimeout(function() {
+                notification.remove();
+            }, 300);
+        }
+    }, 5000);
+}
+
+
+
 // infobulles => attribut data-tooltip
 function initTooltips() {
     const tooltipElements = document.querySelectorAll('[data-tooltip]');

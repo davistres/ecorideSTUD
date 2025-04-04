@@ -66,6 +66,10 @@
     color: white;
     text-decoration: none;
     transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    font-size: 1rem;
 }
 
 .widget-action-btn:hover {
@@ -122,6 +126,92 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.profile-avatar:hover {
+    transform: scale(1.05);
+}
+
+/* Modale photo de profil */
+.profile-photo-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .profile-photo-container {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+.profile-photo-preview, .profile-photo-upload {
+    flex: 1;
+    text-align: center;
+}
+
+.photo-preview-area {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 1rem auto;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.photo-preview-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.delete-photo-btn {
+    position: absolute;
+    top: 10px;
+    right: 30px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.delete-photo-btn:hover {
+    background-color: #c0392b;
+    transform: scale(1.1);
+}
+
+.photo-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #2ecc71;
+    color: white;
+    font-size: 3rem;
+}
+
+.profile-photo-upload input[type="file"] {
+    display: block;
+    margin: 1rem auto;
+}
+
+.form-help-text {
+    display: block;
+    color: #7f8c8d;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
 }
 
 .profile-avatar img {
@@ -269,6 +359,11 @@
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
 }
 
+.role-radio {
+    display: flex;
+    justify-content: space-between;
+}
+
 .role-name {
     font-weight: bold;
     margin-bottom: 0.25rem;
@@ -280,7 +375,7 @@
     color: #7f8c8d;
 }
 
-.role-submit-btn {
+.role-submit-btn, .btn-confirm-delete {
     background-color: #2ecc71;
     color: white;
     border: none;
@@ -296,6 +391,12 @@
     background-color: #27ae60;
     transform: translateY(-2px);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.btn-confirm-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    background-color: #e74c3c;
 }
 
 /* card //////////////////////////////////////////*/
@@ -575,9 +676,9 @@
 }
 
 .vehicle-details {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
+    display: flex;
+    gap: 1rem 4.5rem;
+    flex-wrap: wrap;
 }
 
 .vehicle-detail {
@@ -591,6 +692,13 @@
 .vehicle-actions {
     display: flex;
     gap: 0.75rem;
+    flex-direction: column
+}
+
+@media (min-width: 768px) {
+    .vehicle-actions {
+        flex-direction: row;
+    }
 }
 
 .vehicle-edit-btn, .vehicle-delete-btn {
@@ -646,7 +754,7 @@
 }
 
 .preference-libre {
-    flex-basis: 100%;
+    grid-column: 1/3;
 }
 
 .preference-icon {
@@ -660,6 +768,40 @@
     border-radius: 50%;
     font-size: 1.25rem;
 }
+
+/* Problème de hoverflow... hoverflow: hidden n'a pas marché!!!! J'ai du demander de l'aide pour le solutionner*/
+/* En trois étapes*/
+.preference-item.preference-libre {
+    width: 100%;
+}
+/* Prends toute la largeur en taille mobile*/
+
+.preference-item.preference-libre .preference-text {
+    flex: 1;
+    min-width: 0; /* Très important pour le wrapping */
+    padding-left: 0.5rem;
+}
+/* Permet au texte d'être responsive*/
+
+.preference-item.preference-libre .preference-text span {
+     word-wrap: break-word;
+}
+/* coupe les mots trop longs avec un retour à la ligne*/
+/* Logique avec flex:1; min-width: 0; et word-wrap à maitriser!!!!!!!!!!!!!!!!!*/
+
+@media (min-width: 768px) {
+    .fa-info-circle {
+        width: 40px;
+    }
+
+}
+
+
+
+
+
+
+
 
 /* Historique */
 .history-tabs {
@@ -873,6 +1015,11 @@
     overflow-y: auto;
 }
 
+.modal-body P {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
 .passengers-list {
     display: flex;
     flex-direction: column;
@@ -896,6 +1043,12 @@
     margin-top: 0.25rem;
 }
 
+.passenger-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
 /* Animation des widgets */
 .dashboard-widget {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -907,11 +1060,10 @@
 }
 
 /* Animation des icônes */
-.preference-icon, .no-trips-icon, .no-vehicles-icon, .avatar-placeholder {
+.no-trips-icon, .no-vehicles-icon, .avatar-placeholder {
     transition: transform 0.3s ease;
 }
 
-.preference-item:hover .preference-icon,
 .no-trips:hover .no-trips-icon,
 .no-vehicles:hover .no-vehicles-icon,
 .profile-avatar:hover .avatar-placeholder {
@@ -921,43 +1073,136 @@
 /* tablette et ordi //////////////////////////////////////////////////*/
 @media (min-width: 768px) {
     .dashboard-grid {
-        grid-template-columns: 1fr 300px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px; /* Colonne gauche flexible et colonne droite fixe à 300px */
+        gap: 1.5rem;
     }
 
-    /* OBJECTIF => Mon Profile s'adapte et Mon Role reste fixe */
-    .profile-widget {
-        grid-column: 1;
+    /* DASHBOARD PASSAGER */
+    .dashboard-grid.passager {
+        grid-template-areas:
+            "profile role"
+            "booked role"
+            "history history";
+        grid-template-rows: auto auto 1fr;
     }
-
-    .role-widget {
-        grid-column: 2;
+    .dashboard-grid.passager .profile-widget {
+        grid-area: profile;
+    }
+    .dashboard-grid.passager .role-widget {
+        grid-area: role;
         width: 300px;
+        height: 100%;
+    }
+    .dashboard-grid.passager .booked-trips-widget {
+        grid-area: booked;
+    }
+    .dashboard-grid.passager .history-widget {
+        grid-area: history;
+        grid-column: 1 / -1;
+    }
+    /* Cacher les autres widgets pour Passager */
+    .dashboard-grid.passager .preferences-widget,
+    .dashboard-grid.passager .vehicles-widget,
+    .dashboard-grid.passager .offered-trips-widget,
+    .dashboard-grid.passager .pending-forms-widget {
+        display: none;
     }
 
-    .history-widget, .booked-trips-widget, .offered-trips-widget,
-    .vehicles-widget, .preferences-widget, .pending-forms-widget {
-        grid-column: 1 / -1; /* Normalement=> de la première à la dernière colonne //////////////////*/
+    /* DASHBOARD CONDUCTEUR */
+    .dashboard-grid.conducteur {
+        grid-template-areas:
+            "profile role"
+            "prefs role"
+            "vehicles vehicles"
+            "offered offered"
+            "history history";
+        grid-template-rows: auto auto auto auto 1fr;
+    }
+    .dashboard-grid.conducteur .profile-widget {
+        grid-area: profile;
+    }
+    .dashboard-grid.conducteur .role-widget {
+        grid-area: role;
+        width: 300px;
+        height: 100%;
+    }
+    .dashboard-grid.conducteur .preferences-widget {
+        grid-area: prefs;
+    }
+    .dashboard-grid.conducteur .vehicles-widget {
+        grid-area: vehicles;
+        grid-column: 1 / -1;
+    }
+    .dashboard-grid.conducteur .offered-trips-widget {
+        grid-area: offered;
+        grid-column: 1 / -1;
+    }
+    .dashboard-grid.conducteur .history-widget {
+        grid-area: history;
+        grid-column: 1 / -1;
+    }
+    /* Cacher les autres widgets pour Conducteur */
+    .dashboard-grid.conducteur .booked-trips-widget,
+    .dashboard-grid.conducteur .pending-forms-widget {
+        display: none;
     }
 
+    /* DASHBOARD LES DEUX */
+    .dashboard-grid.les-deux {
+        grid-template-areas:
+            "profile role"
+            "prefs role"
+            "vehicles vehicles"
+            "offered offered"
+            "booked booked"
+            "history history";
+        grid-template-rows: auto auto auto auto auto 1fr;
+    }
+    .dashboard-grid.les-deux .profile-widget {
+        grid-area: profile;
+    }
+    .dashboard-grid.les-deux .role-widget {
+        grid-area: role;
+        width: 300px;
+        height: 100%;
+    }
+    .dashboard-grid.les-deux .preferences-widget {
+        grid-area: prefs;
+    }
+    .dashboard-grid.les-deux .vehicles-widget {
+        grid-area: vehicles;
+        grid-column: 1 / -1;
+    }
+    .dashboard-grid.les-deux .booked-trips-widget {
+        grid-area: booked;
+        grid-column: 1 / -1;
+    }
+    .dashboard-grid.les-deux .offered-trips-widget {
+        grid-area: offered;
+        grid-column: 1 / -1;
+    }
+    .dashboard-grid.les-deux .history-widget {
+        grid-area: history;
+        grid-column: 1 / -1;
+    }
+
+    /* Autres ajustements */
     .trip-time {
         flex-direction: row;
         gap: 1.5rem;
     }
-
     .preferences-list {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-
-
 @media (min-width: 1200px) {
     .trip-cards {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
     }
-
     .history-list {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -1024,4 +1269,66 @@
         opacity: 0;
         transform: scale(40, 40);
     }
+}
+
+
+/* Btn pour ajouter un vehicule */
+.add-vehicle-btn {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #2ecc71;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.add-vehicle-btn:hover {
+    background-color: #27ae60;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Btn pour supprimer un vehicle */
+.delete-vehicle-btn {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.delete-vehicle-btn:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Detail du véhicule */
+#vehicle-details-content {
+    padding: 1rem;
+}
+
+/* Btn confirmation */
+.confirm-remove-all-btn, .confirm-revert-btn {
+    padding: 0.75rem 1rem;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.confirm-remove-all-btn:hover, .confirm-revert-btn:hover {
+    background-color: #27ae60;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }

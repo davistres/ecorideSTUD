@@ -350,11 +350,6 @@
     max-width: none;
 }
 
-/* Icône spécifique pour la voiture */
-.icon-car:before {
-    content: "🚗";
-    margin-right: 0.5rem;
-}
 
 /* Partie ORDI (grands écrans) ////////////////////////////////// */
 /* Les cacher en mobile */

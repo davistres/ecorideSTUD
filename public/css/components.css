@@ -1,5 +1,5 @@
 /* Boutons */
-.cta-button, .auth-button, .search-button, .btn-details, .btn-return-home, .btn404, .suggested-date-btn {
+.cta-button, .auth-button, .search-button, .btn-details, .btn-return-home, .suggested-date-btn {
     background-color: #2ecc71;
     color: white;
     border: none;
@@ -10,7 +10,7 @@
     text-align: center;
 }
 
-.cta-button:hover, .auth-button:hover, .search-button:hover, .btn-details:hover, .btn-return-home:hover, .btn404:hover, .suggested-date-btn:hover {
+.cta-button:hover, .auth-button:hover, .search-button:hover, .btn-details:hover, .btn-return-home:hover, .suggested-date-btn:hover {
     background-color: #27ae60;
     transform: translateY(-2px);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -20,10 +20,11 @@
 .error-message {
     background-color: rgba(231, 76, 60, 0.1);
     color: #e74c3c;
-    padding: 1rem;
+    padding: 0.8rem;
     border-left: 4px solid #e74c3c;
     margin-bottom: 1rem;
     border-radius: 4px;
+    line-height: 3rem;
 }
 
 .info-message {
@@ -96,6 +97,11 @@
     background-color: #d1ecf1;
     color: #0c5460;
     border-left: 4px solid #17a2b8;
+}
+
+.notification-message {
+    flex: 1;
+    padding-right: 10px;
 }
 
 .notification-close {

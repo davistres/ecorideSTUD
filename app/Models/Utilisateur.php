@@ -10,6 +10,8 @@ class Utilisateur extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    public $timestamps = false;
+
     protected $table = 'UTILISATEUR';
 
     protected $primaryKey = 'user_id';
@@ -20,6 +22,7 @@ class Utilisateur extends Authenticatable
         'password_hash',
         'n_credit',
         'role',
+        'profile_photo',
     ];
 
     protected $hidden = [

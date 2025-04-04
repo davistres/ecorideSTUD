@@ -97,7 +97,7 @@
 
                             <div class="covoiturage-booking-info">
                                 <div class="trip-seats">
-                                    <i class="icon-user"></i>
+                                    <i class="fas fa-user"></i>
                                     <span>{{ $covoiturage['places_restantes'] }}
                                         {{ $covoiturage['places_restantes'] > 1 ? 'places disponibles' : 'place disponible' }}</span>
                                 </div>
@@ -144,17 +144,17 @@
                                         <span class="to">{{ $covoiturage['lieu_arrivee'] }}</span>
                                     </div>
                                     <div class="trip-date">
-                                        <i class="icon-calendar"></i>
+                                        <i class="fas fa-calendar"></i>
                                         {{ date('d/m/Y', strtotime($covoiturage['date_depart'])) }}
                                     </div>
                                 </div>
                                 <div class="trip-time">
                                     <span class="departure-time">
-                                        <i class="icon-clock"></i>
+                                        <i class="fas fa-clock"></i>
                                         Départ: {{ $covoiturage['heure_depart'] }}
                                     </span>
                                     <span class="arrival-time">
-                                        <i class="icon-clock"></i>
+                                        <i class="fas fa-clock"></i>
                                         Arrivée: {{ $covoiturage['heure_arrivee'] }}
                                     </span>
                                 </div>
@@ -162,9 +162,9 @@
 
                             <div class="trip-eco-badge {{ $covoiturage['ecologique'] ? 'eco' : 'standard' }}">
                                 @if ($covoiturage['ecologique'])
-                                    <i class="icon-leaf"></i> Voyage écologique
+                                    <i class="fas fa-leaf"></i> Voyage écologique
                                 @else
-                                    <i class="icon-car"></i> Voyage standard
+                                    <i class="fas fa-car"></i> Voyage standard
                                 @endif
                             </div>
                         </div>
@@ -172,7 +172,7 @@
 
                         <div class="covoiturage-booking">
                             <div class="trip-seats">
-                                <i class="icon-user"></i>
+                                <i class="fas fa-user"></i>
                                 <span>{{ $covoiturage['places_restantes'] }}
                                     {{ $covoiturage['places_restantes'] > 1 ? 'places disponibles' : 'place disponible' }}</span>
                             </div>
@@ -242,7 +242,7 @@
 
                             <div class="covoiturage-booking-info">
                                 <div class="trip-seats">
-                                    <i class="icon-user"></i>
+                                    <i class="fas fa-user"></i>
                                     <span>3 places</span>
                                 </div>
                                 <div class="trip-price">
@@ -273,30 +273,30 @@
                                         <span class="to">Paris</span>
                                     </div>
                                     <div class="trip-date">
-                                        <i class="icon-calendar"></i>
+                                        <i class="fas fa-calendar"></i>
                                         25/03/2025
                                     </div>
                                 </div>
                                 <div class="trip-time">
                                     <span class="departure-time">
-                                        <i class="icon-clock"></i>
+                                        <i class="fas fa-clock"></i>
                                         Départ: 09:45
                                     </span>
                                     <span class="arrival-time">
-                                        <i class="icon-clock"></i>
+                                        <i class="fas fa-clock"></i>
                                         Arrivée: 13:30
                                     </span>
                                 </div>
                             </div>
 
                             <div class="trip-eco-badge eco">
-                                <i class="icon-leaf"></i> Voyage écologique
+                                <i class="fas fa-leaf"></i> Voyage écologique
                             </div>
                         </div>
 
                         <div class="covoiturage-booking">
                             <div class="trip-seats">
-                                <i class="icon-user"></i>
+                                <i class="fas fa-user"></i>
                                 <span>3 places disponibles</span>
                             </div>
 
