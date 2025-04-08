@@ -176,6 +176,13 @@ footer a {
     margin-top: 20px;
 }
 
+.footer-nav a[href^="mailto:"] {
+    word-wrap: break-word;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
 .footer-content {
     max-width: 1200px;
     margin: 0 auto;

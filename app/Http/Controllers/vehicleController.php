@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\Voiture;
 use App\Models\Chauffeur;
 use App\Models\Covoiturage;
@@ -33,26 +34,55 @@ class VehicleController extends Controller
         }
 
         $validated = $request->validate([
-            'marque' => 'required|string|max:50',
-            'modele' => 'required|string|max:50',
-            'immat' => ['required', 'string', 'max:20', Rule::unique('VOITURE', 'immat')],
-            'couleur' => 'required|string|max:30',
+            'marque' => 'required|string|max:12',
+            'modele' => 'required|string|max:24',
+            'immat' => ['required', 'string', 'max:10', Rule::unique('VOITURE', 'immat')],
+            'couleur' => 'required|string|max:12',
             'n_place' => 'required|integer|min:2|max:9',
-            'energie' => 'required|in:Essence,Diesel,Électrique,Hybride,GPL',
+            'energie' => 'required|in:Essence,Diesel/Gazole,Electrique,Hybride,GPL',
             'date_first_immat' => 'required|date|before_or_equal:today',
         ]);
 
         DB::beginTransaction();
         try {
+            // Données validées pour l\'ajout d\'un véhicule
+            Log::info('Données validées pour l\'ajout d\'un véhicule', $validated);
+
             $voiture = new Voiture();
             $voiture->driver_id = $chauffeur->driver_id;
-            $voiture->brand = $validated['marque'];
-            $voiture->model = $validated['modele'];
-            $voiture->immat = $validated['immat'];
-            $voiture->color = $validated['couleur'];
-            $voiture->n_place = $validated['n_place'];
-            $voiture->energie = $validated['energie'];
-            $voiture->date_first_immat = $validated['date_first_immat'];
+
+            try { $voiture->brand = $validated['marque']; }
+            catch (\Exception $e) { Log::error('Erreur assignation brand: '.$e->getMessage()); }
+
+            try { $voiture->model = $validated['modele']; }
+            catch (\Exception $e) { Log::error('Erreur assignation model: '.$e->getMessage()); }
+
+            try { $voiture->immat = $validated['immat']; }
+            catch (\Exception $e) { Log::error('Erreur assignation immat: '.$e->getMessage()); }
+
+            try { $voiture->color = $validated['couleur']; }
+            catch (\Exception $e) { Log::error('Erreur assignation color: '.$e->getMessage()); }
+
+            try { $voiture->n_place = $validated['n_place']; }
+            catch (\Exception $e) { Log::error('Erreur assignation n_place: '.$e->getMessage()); }
+
+            try { $voiture->energie = $validated['energie']; }
+            catch (\Exception $e) { Log::error('Erreur assignation energie: '.$e->getMessage()); }
+
+            try { $voiture->date_first_immat = $validated['date_first_immat']; }
+            catch (\Exception $e) { Log::error('Erreur assignation date_first_immat: '.$e->getMessage()); }
+
+            Log::info('Tentative de sauvegarde du véhicule', [
+                'driver_id' => $voiture->driver_id,
+                'brand' => $voiture->brand,
+                'model' => $voiture->model,
+                'immat' => $voiture->immat,
+                'color' => $voiture->color,
+                'n_place' => $voiture->n_place,
+                'energie' => $voiture->energie,
+                'date_first_immat' => $voiture->date_first_immat
+            ]);
+
             $voiture->save();
 
             DB::commit();
@@ -64,7 +94,7 @@ class VehicleController extends Controller
              return response()->json(['success' => false, 'message' => $e->validator->errors()->first(), 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             DB::rollback();
-             \Log::error('Erreur ajout véhicule: '.$e->getMessage());
+             Log::error('Erreur ajout véhicule: '.$e->getMessage());
              $errorMessage = 'Une erreur est survenue lors de l\'ajout du véhicule.';
              if (str_contains($e->getMessage(), 'Duplicate entry')) {
                  $errorMessage = 'Cette immatriculation existe déjà.';
@@ -108,12 +138,12 @@ class VehicleController extends Controller
         }
 
         $validated = $request->validate([
-            'marque' => 'required|string|max:50',
-            'modele' => 'required|string|max:50',
+            'marque' => 'required|string|max:12',
+            'modele' => 'required|string|max:24',
             // 'immat' => readonly
-            'couleur' => 'required|string|max:30',
+            'couleur' => 'required|string|max:12',
             'n_place' => 'required|integer|min:2|max:9',
-            'energie' => 'required|in:Essence,Diesel,Électrique,Hybride,GPL',
+            'energie' => 'required|in:Essence,Diesel/Gazole,Electrique,Hybride,GPL',
             'date_first_immat' => 'required|date|before_or_equal:today',
         ]);
 
@@ -136,7 +166,7 @@ class VehicleController extends Controller
             return response()->json(['success' => false, 'message' => $e->validator->errors()->first(), 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             DB::rollback();
-            \Log::error('Erreur MAJ véhicule: '.$e->getMessage());
+            Log::error('Erreur MAJ véhicule: '.$e->getMessage());
             return response()->json(['success' => false, 'message' => 'Erreur lors de la mise à jour du véhicule.'], 500);
         }
     }
@@ -160,48 +190,59 @@ class VehicleController extends Controller
 
         $remainingVehicles = Voiture::where('driver_id', $chauffeur->driver_id)->count();
         if ($remainingVehicles <= 1) {
-             //renvoye une erreur si on essaye de supprimer le dernier véhicule via la mauvaise route => JS => route /reset-role
+             //renvoye une erreur si on essaye de supprimer le dernier véhicule
         }
 
 
         DB::beginTransaction();
         try {
-            // Annule les covoit avant de supprimer le vehicle,
-             $tripsToCancel = Covoiturage::where('immat', $immat)
+            // Annule les covoit avant de supprimer le véhicule
+            $tripsToCancel = Covoiturage::where('immat', $immat)
                 ->where('driver_id', $chauffeur->driver_id)
-                ->where('departure_date', '>=', Carbon::today())
                 ->where('cancelled', false)
                 ->get();
 
-             foreach ($tripsToCancel as $trip) {
-                 // Remboursement
-                 $confirmations = Confirmation::where('covoit_id', $trip->covoit_id)->with('utilisateur')->get();
-                 foreach ($confirmations as $confirmation) {
-                     $passenger = $confirmation->utilisateur;
-                     if ($passenger) {
-                         $passenger->n_credit += $trip->price;
-                         $passenger->save();
-                     }
-                     $confirmation->delete();
-                 }
-                 $trip->cancelled = true;
-                 $trip->save();
-             }
+            // Compter les covoiturages à venir qui seront annulés
+            $upcomingTripsCount = $tripsToCancel->where('departure_date', '>=', Carbon::today()->format('Y-m-d'))->count();
 
+            foreach ($tripsToCancel as $trip) {
+                // Remboursement
+                if (Carbon::parse($trip->departure_date)->gte(Carbon::today())) {
+                    $confirmations = Confirmation::where('covoit_id', $trip->covoit_id)->with('utilisateur')->get();
+                    foreach ($confirmations as $confirmation) {
+                        $passenger = $confirmation->utilisateur;
+                        if ($passenger) {
+                            DB::table('UTILISATEUR')
+                                ->where('user_id', $passenger->user_id)
+                                ->increment('n_credit', $trip->price);
+                        }
+                        $confirmation->delete();
+                    }
+                }
+                // Marquer le covoiturage comme annulé
+                DB::table('COVOITURAGE')
+                    ->where('covoit_id', $trip->covoit_id)
+                    ->update(['cancelled' => true]);
+            }
 
             $vehicle->delete();
 
             DB::commit();
-            return response()->json(['success' => true, 'remainingVehicles' => $remainingVehicles - 1]);
+            return response()->json([
+                'success' => true,
+                'remainingVehicles' => $remainingVehicles - 1,
+                'cancelledTrips' => $tripsToCancel->count(),
+                'upcomingTrips' => $upcomingTripsCount
+            ]);
         } catch (\Exception $e) {
             DB::rollback();
-            \Log::error("Erreur suppression véhicule simple: " . $e->getMessage());
+            Log::error("Erreur suppression véhicule simple: " . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Erreur lors de la suppression: ' . $e->getMessage()]);
         }
     }
 
 
-    // Dernier véhicule => role => Passager + Annulation des covoit
+    // Si on supprime le dernier véhicule on redevient Passager + Annulation des covoit
     public function destroyLastAndResetRole($immat)
     {
         $user = Auth::user();
@@ -226,36 +267,50 @@ class VehicleController extends Controller
 
         DB::beginTransaction();
         try {
+            // Annuler tous les covoit du conducteur
             $tripsToCancel = Covoiturage::where('driver_id', $chauffeur->driver_id)
-                ->where('departure_date', '>=', Carbon::today())
                 ->where('cancelled', false)
                 ->get();
 
+            // Compter les covoit à venir qui seront annulés
+            $upcomingTripsCount = $tripsToCancel->where('departure_date', '>=', Carbon::today()->format('Y-m-d'))->count();
+
             foreach ($tripsToCancel as $trip) {
-                $confirmations = Confirmation::where('covoit_id', $trip->covoit_id)->with('utilisateur')->get();
-                foreach ($confirmations as $confirmation) {
-                    $passenger = $confirmation->utilisateur;
-                     if ($passenger) {
-                         $passenger->n_credit += $trip->price;
-                         $passenger->save();
-                     }
-                    $confirmation->delete();
+                // Remboursement pour les covoit à venir
+                if (Carbon::parse($trip->departure_date)->gte(Carbon::today())) {
+                    $confirmations = Confirmation::where('covoit_id', $trip->covoit_id)->with('utilisateur')->get();
+                    foreach ($confirmations as $confirmation) {
+                        $passenger = $confirmation->utilisateur;
+                        if ($passenger) {
+                            // Mise à jour des crédits pour l'utilisateur
+                            DB::table('UTILISATEUR')
+                                ->where('user_id', $passenger->user_id)
+                                ->increment('n_credit', $trip->price);
+                        }
+                        $confirmation->delete();
+                    }
                 }
-                $trip->cancelled = true;
-                $trip->save();
+                // Marquer le covoit comme annulé
+                DB::table('COVOITURAGE')
+                    ->where('covoit_id', $trip->covoit_id)
+                    ->update(['cancelled' => true]);
             }
 
             $vehicle->delete();
             $chauffeur->delete();
-            $user->role = 'Passager';
-            $user->save();
+            // Mise à jour du role
+            DB::table('UTILISATEUR')->where('user_id', $user->user_id)->update(['role' => 'Passager']);
 
             DB::commit();
-            return response()->json(['success' => true, 'message' => 'Dernier véhicule supprimé, rôle mis à jour vers Passager.']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Dernier véhicule supprimé, rôle mis à jour vers Passager.',
+                'cancelledTrips' => $tripsToCancel->count()
+            ]);
 
         } catch (\Exception $e) {
             DB::rollback();
-            \Log::error("Erreur suppression dernier véhicule/reset role: " . $e->getMessage());
+            Log::error("Erreur suppression dernier véhicule/reset role: " . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Erreur lors de la suppression et réinitialisation: ' . $e->getMessage()], 500);
         }
     }
@@ -278,5 +333,48 @@ class VehicleController extends Controller
         }
 
         return response()->json($vehicle);
+    }
+
+    // Vérifier si un véhicule est lié à un covoit
+    public function checkTrips($immat)
+    {
+        $user = Auth::user();
+        $chauffeur = Chauffeur::where('user_id', $user->user_id)->first();
+
+        if (!$chauffeur) {
+            return response()->json(['error' => 'Non autorisé'], 403);
+        }
+
+        $vehicle = Voiture::where('immat', $immat)
+            ->where('driver_id', $chauffeur->driver_id)
+            ->first();
+
+        if (!$vehicle) {
+            return response()->json(['error' => 'Véhicule non trouvé'], 404);
+        }
+
+        // Récupérer les covoiturages liés à ce véhicule
+        // Erreur => manque la colonne 'completed' dans la table COVOITURAGE
+        // Découverte de Carbon::now() => date et l'heure actuelle
+        $now = Carbon::now();
+
+        // Forcer le rechargement (=> base de données) pour éviter les problèmes de cache
+        $trips = Covoiturage::where('immat', $immat)
+            ->where('driver_id', $chauffeur->driver_id)
+            ->where('cancelled', false)
+            ->where('departure_date', '>=', $now->format('Y-m-d'))
+            ->get(['covoit_id', 'city_dep', 'city_arr', 'departure_date']);
+
+        // Log pour débogage
+        \Illuminate\Support\Facades\Log::info('Covoiturages trouvés pour le véhicule ' . $immat, [
+            'count' => $trips->count(),
+            'trips' => $trips->toArray(),
+            'timestamp' => $now->toDateTimeString()
+        ]);
+
+        return response()->json([
+            'hasTrips' => $trips->count() > 0,
+            'trips' => $trips
+        ]);
     }
 }

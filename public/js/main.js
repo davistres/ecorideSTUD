@@ -5,7 +5,31 @@ document.addEventListener("DOMContentLoaded", function() {
     setupDateInputs();
     applyCardAnimations();
     detectBrowserCompatibility();
+    initAllModals();
 });
+
+// Initialise toutes les modales
+function initAllModals() {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        // Fermeture en cliquant sur la croix
+        const closeButtons = modal.querySelectorAll('.modal-close');
+        closeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                modal.classList.remove('active');
+            });
+        });
+
+        // Fermeture en cliquant en dehors
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    });
+
+    console.log(`${modals.length} modales initialisées`);
+}
 
 
 // Notification
@@ -151,3 +175,4 @@ function detectBrowserCompatibility() {
         }
     }
 }
+

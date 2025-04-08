@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\Chauffeur;
 use App\Models\Voiture;
 use App\Models\Covoiturage;
@@ -100,6 +101,7 @@ class HomeController extends Controller
                 // covoit proposés par le chauffeur
                 $data['offeredTrips'] = Covoiturage::where('driver_id', $chauffeur->driver_id)
                     ->where('departure_date', '>=', Carbon::today())
+                    ->where('cancelled', false) // trajets annulés => exclut
                     ->with(['voiture', 'confirmations.utilisateur'])
                     ->orderBy('departure_date', 'asc')
                     ->get();
@@ -123,7 +125,8 @@ class HomeController extends Controller
         if ($user->role === 'Passager' || $user->role === 'Les deux') {
             $data['reservations'] = Confirmation::where('user_id', $user->user_id)
                 ->whereHas('covoiturage', function ($query) {
-                    $query->where('departure_date', '>=', Carbon::today());
+                    $query->where('departure_date', '>=', Carbon::today())
+                          ->where('cancelled', false); // trajets annulés => exclut
                 })
                 ->with(['covoiturage' => function ($query) {
                     $query->with(['chauffeur.utilisateur', 'voiture']);
@@ -155,8 +158,10 @@ class HomeController extends Controller
             }
 
             \Log::info('Photo de profil mise à jour', ['user_id' => $user->user_id, 'taille' => strlen($binaryData)]);
-            $user->profile_photo = $binaryData;
-            $user->save();
+            // Mettre à jour le profil de l'utilisateur
+            DB::table('UTILISATEUR')
+                ->where('user_id', $user->user_id)
+                ->update(['profile_photo' => $binaryData]);
 
             $encodedPhoto = base64_encode($binaryData);
             if ($encodedPhoto === false) {
@@ -260,9 +265,14 @@ class HomeController extends Controller
             return response()->json(['error' => 'Trajet non trouvé'], 404, [], JSON_INVALID_UTF8_IGNORE);
         }
 
+        DB::beginTransaction();
         try {
             $trip->trip_started = false;
             $trip->trip_completed = true;
+
+            // C'est du bricolage mais pour le moment, je mets le covoit comme annulé pour qu'il n'apparaisse plus dans les requêtes (qui utilisent where('cancelled', false))... Il faudra changer cela après!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            $trip->cancelled = true;
+
             $trip->save();
 
             // formulaires de satisfaction => passagers
@@ -278,7 +288,10 @@ class HomeController extends Controller
             // Ici, créer le code pour envoyer un email qui demande aux passagers de remplir le formulaire de satisfaction
             // A développer si j'ai le temps...
 
-            return response()->json(['success' => true], 200, [], JSON_INVALID_UTF8_IGNORE);
+            // Valider la transaction
+            DB::commit();
+
+            return response()->json(['success' => true, 'message' => 'Le trajet a été terminé avec succès.'], 200, [], JSON_INVALID_UTF8_IGNORE);
         } catch (\Exception $e) {
             $errorMessage = mb_convert_encoding($e->getMessage(), 'UTF-8', 'auto');
             return response()->json(['success' => false, 'message' => 'Erreur : ' . $errorMessage], 200, [], JSON_INVALID_UTF8_IGNORE);
@@ -354,8 +367,9 @@ class HomeController extends Controller
             $trip = $confirmation->covoiturage;
 
             // Remboursement du passager
-            $user->n_credit += $trip->price;
-            $user->save();
+            DB::table('UTILISATEUR')
+                ->where('user_id', $user->user_id)
+                ->update(['n_credit' => $user->n_credit + $trip->price]);
 
             // A créer= l'enregistrement dans la table FLUX
 
@@ -396,84 +410,124 @@ class HomeController extends Controller
 
             // Passager => Conducteur ou Les deux
         if ($user->role === 'Passager' && ($newRole === 'Conducteur' || $newRole === 'Les deux')) {
-            $validated = $request->validate([
-                'pref_smoke' => 'required|in:Fumeur,Non-fumeur',
-                'pref_pet' => 'required|in:Acceptés,Non-acceptés',
-                'pref_libre' => 'nullable|string|max:255',
-                'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-                'marque' => 'required|string|max:50',
-                'modele' => 'required|string|max:50',
-                'immat' => ['required', 'string', 'max:20', Rule::unique('VOITURE', 'immat')],
-                'couleur' => 'required|string|max:30',
-                'n_place' => 'required|integer|min:2|max:9',
-                'energie' => 'required|in:Essence,Diesel,Électrique,Hybride,GPL',
-                'date_first_immat' => 'required|date|before_or_equal:today',
-            ]);
-
-            DB::beginTransaction();
             try {
-                // Créer ou mettre à jour le profil conducteur
-                $chauffeur = Chauffeur::updateOrCreate(
-                    ['user_id' => $user->user_id],
-                    [
-                        'pref_smoke' => $validated['pref_smoke'],
-                        'pref_pet' => $validated['pref_pet'],
-                        'pref_libre' => $validated['pref_libre'] ?? null,
-                    ]
-                );
+                \Log::info('Starting validation for role change', ['requestData' => $request->all()]);
 
-                $voiture = new Voiture();
-                $voiture->driver_id = $chauffeur->driver_id;
-                $voiture->brand = $validated['marque'];
-                $voiture->model = $validated['modele'];
-                $voiture->immat = $validated['immat'];
-                $voiture->color = $validated['couleur'];
-                $voiture->n_place = $validated['n_place'];
-                $voiture->energie = $validated['energie'];
-                $voiture->date_first_immat = $validated['date_first_immat'];
-                $voiture->save();
+                $validated = $request->validate([
+                    'pref_smoke' => 'required|in:Fumeur,Non-fumeur',
+                    'pref_pet' => 'required|in:Acceptés,Non-acceptés',
+                    'pref_libre' => 'nullable|string|max:255',
+                    'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                    'marque' => 'required|string|max:50',
+                    'modele' => 'required|string|max:50',
+                    'immat' => ['required', 'string', 'max:20', Rule::unique('VOITURE', 'immat')],
+                    'couleur' => 'required|string|max:30',
+                    'n_place' => 'required|integer|min:2|max:9',
+                    'energie' => 'required|in:Essence,Diesel/Gazole,Electrique,Hybride,GPL',
+                    'date_first_immat' => 'required|date|before_or_equal:today',
+                ]);
 
-                $user->role = $newRole;
+                \Log::info('Validation passed for role change', ['validated' => $validated]);
 
-                if ($request->hasFile('profile_photo') && $request->file('profile_photo')->isValid()) {
-                    $photoFile = $request->file('profile_photo');
-                    $binaryData = file_get_contents($photoFile->getRealPath());
-                    if ($binaryData === false) {
-                        throw new \Exception('Erreur lors de la lecture du fichier photo.');
+                DB::beginTransaction();
+                try {
+                    \Log::info('Creating driver profile');
+                    // Créer ou mettre à jour le profil conducteur
+                    $chauffeur = Chauffeur::updateOrCreate(
+                        ['user_id' => $user->user_id],
+                        [
+                            'pref_smoke' => $validated['pref_smoke'],
+                            'pref_pet' => $validated['pref_pet'],
+                            'pref_libre' => $validated['pref_libre'] ?? null,
+                        ]
+                    );
+
+                    \Log::info('Driver profile created/updated', ['driver_id' => $chauffeur->driver_id]);
+
+                    \Log::info('Creating vehicle');
+                    $voiture = new Voiture();
+                    $voiture->driver_id = $chauffeur->driver_id;
+                    $voiture->brand = $validated['marque'];
+                    $voiture->model = $validated['modele'];
+                    $voiture->immat = $validated['immat'];
+                    $voiture->color = $validated['couleur'];
+                    $voiture->n_place = $validated['n_place'];
+                    $voiture->energie = $validated['energie'];
+                    $voiture->date_first_immat = $validated['date_first_immat'];
+                    $voiture->save();
+                    \Log::info('Vehicle created', ['immat' => $voiture->immat]);
+
+                    $user->role = $newRole;
+                    \Log::info('Updating user role', ['newRole' => $newRole]);
+
+                    if ($request->hasFile('profile_photo')) {
+                        \Log::info('Processing profile photo');
+                        $photoFile = $request->file('profile_photo');
+                        if ($photoFile->isValid()) {
+                            try {
+                                $binaryData = file_get_contents($photoFile->getRealPath());
+                                if ($binaryData === false) {
+                                    throw new \Exception('Erreur lors de la lecture du fichier photo.');
+                                }
+                                $user->profile_photo = $binaryData;
+                                \Log::info('Profile photo updated during role change', ['user_id' => $user->user_id, 'photo_size' => strlen($binaryData)]);
+                            } catch (\Exception $e) {
+                                \Log::error('Error reading profile photo', ['error' => $e->getMessage()]);
+                                throw new \Exception('Erreur lors de la lecture du fichier photo: ' . $e->getMessage());
+                            }
+                        } else {
+                            \Log::warning('Invalid profile photo uploaded', ['error' => $photoFile->getErrorMessage()]);
+                        }
                     }
-                    $user->profile_photo = $binaryData;
-                    \Log::info('Profile photo updated during role change', ['user_id' => $user->user_id]);
+
+                    // Mettre à jour le rôle de l'utilisateur
+                    DB::table('UTILISATEUR')
+                        ->where('user_id', $user->user_id)
+                        ->update(['role' => $newRole, 'profile_photo' => $user->profile_photo]);
+                    \Log::info('User saved with new role');
+
+                    DB::commit();
+                    \Log::info('Role updated successfully to Conducteur/Les deux', ['newRole' => $newRole, 'userId' => $user->user_id]);
+                    return response()->json(['success' => true]);
+
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    \Log::error('Error in transaction for role change', [
+                        'message' => $e->getMessage(),
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    $errorMessage = mb_convert_encoding($e->getMessage(), 'UTF-8', 'auto');
+                    if (str_contains($e->getMessage(), 'Duplicate entry') && str_contains($e->getMessage(), 'immat')) {
+                        $errorMessage = 'Cette immatriculation existe déjà.';
+                    } elseif (str_contains($errorMessage, 'Erreur lors de la lecture du fichier photo')) {
+                        $errorMessage = 'Un problème est survenu lors de la lecture de l\'image.';
+                    } else {
+                        $errorMessage = 'Erreur lors de la mise à jour du rôle: ' . $errorMessage;
+                    }
+                    return response()->json(['success' => false, 'message' => $errorMessage], 500);
                 }
-
-                $user->save();
-
-                DB::commit();
-                \Log::info('Role updated successfully to Conducteur/Les deux', ['newRole' => $newRole, 'userId' => $user->user_id]);
-                return response()->json(['success' => true]);
-
             } catch (\Illuminate\Validation\ValidationException $e) {
-                 DB::rollback();
-                 \Log::error('Validation Error updating role', ['errors' => $e->errors()]);
-                 return response()->json(['success' => false, 'message' => $e->validator->errors()->first()], 422);
+                \Log::error('Validation Error updating role', ['errors' => $e->errors()]);
+                return response()->json(['success' => false, 'message' => $e->validator->errors()->first()], 422);
             } catch (\Exception $e) {
-                DB::rollback();
-                \Log::error('Error updating role', ['message' => $e->getMessage()]);
+                \Log::error('Unexpected error during role change validation', [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
+                ]);
                 $errorMessage = mb_convert_encoding($e->getMessage(), 'UTF-8', 'auto');
-                 if (str_contains($e->getMessage(), 'Duplicate entry') && str_contains($e->getMessage(), 'immat')) {
-                     $errorMessage = 'Cette immatriculation existe déjà.';
-                 } elseif (str_contains($errorMessage, 'Erreur lors de la lecture du fichier photo')) {
-                      $errorMessage = 'Un problème est survenu lors de la lecture de l\'image.';
-                 } else {
-                      $errorMessage = 'Erreur lors de la mise à jour du rôle.';
-                 }
-                return response()->json(['success' => false, 'message' => $errorMessage], 500);
+                return response()->json(['success' => false, 'message' => 'Erreur inattendue: ' . $errorMessage], 500);
             }
         }
 
         // Conducteur => Les deux ou l'inverse
         if (($user->role === 'Conducteur' && $newRole === 'Les deux') || ($user->role === 'Les deux' && $newRole === 'Conducteur')) {
-            $user->role = $newRole;
-            $user->save();
+            DB::table('UTILISATEUR')
+                ->where('user_id', $user->user_id)
+                ->update(['role' => $newRole]);
             \Log::info('Role updated directly (Conducteur <-> Les deux)', ['newRole' => $newRole, 'userId' => $user->user_id]);
             return response()->json(['success' => true]);
         }
@@ -522,8 +576,9 @@ class HomeController extends Controller
                 $chauffeur->delete();
             }
 
-            $user->role = 'Passager';
-            $user->save();
+            DB::table('UTILISATEUR')
+                ->where('user_id', $user->user_id)
+                ->update(['role' => 'Passager']);
 
             DB::commit();
             return response()->json(['success' => true], 200, [], JSON_INVALID_UTF8_IGNORE);
@@ -624,8 +679,9 @@ class HomeController extends Controller
 
             Voiture::where('driver_id', $chauffeur->driver_id)->delete();
             $chauffeur->delete();
-            $user->role = 'Passager';
-            $user->save();
+            DB::table('UTILISATEUR')
+                ->where('user_id', $user->user_id)
+                ->update(['role' => 'Passager']);
 
             DB::commit();
             return response()->json(['success' => true], 200, [], JSON_INVALID_UTF8_IGNORE);
@@ -642,8 +698,11 @@ class HomeController extends Controller
 
         try {
             \Log::info('Attempting to delete profile photo', ['user_id' => $user->user_id]);
-            $user->profile_photo = null;
-            $user->save();
+
+            DB::table('UTILISATEUR')
+                ->where('user_id', $user->user_id)
+                ->update(['profile_photo' => null]);
+
             \Log::info('Profile photo deleted successfully', ['user_id' => $user->user_id]);
             return response()->json(['success' => true], 200, [], JSON_INVALID_UTF8_IGNORE);
         } catch (\Exception $e) {

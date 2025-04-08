@@ -22,7 +22,7 @@ class Utilisateur extends Authenticatable
         'password_hash',
         'n_credit',
         'role',
-        'profile_photo',
+        'profile_photo', // pour m'adapter, j'ai dû effacer la colonne idphoto dans la base de donnée et crréer profile_photo pour n'utiliser qu'elle pour les deux modales : roleChangeModal et profilePhotoModal !!!
     ];
 
     protected $hidden = [

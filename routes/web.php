@@ -93,6 +93,9 @@ Route::delete('/vehicles/{immat}', [VehicleController::class, 'destroy'])->middl
 Route::get('/vehicles/{immat}', [VehicleController::class, 'show'])->middleware('auth')->name('vehicle.show');
 // Route::delete('/vehicles/reset', [VehicleController::class, 'reset'])->middleware('auth')->name('vehicle.reset');
 
+// Vérifier si un véhicule est lié à au moins un covoit
+Route::get('/vehicles/{immat}/check-trips', [VehicleController::class, 'checkTrips'])->middleware('auth')->name('vehicle.check.trips');
+
 // delete le dernier véhicule => réinitialiser le rôle
 Route::delete('/vehicles/{immat}/reset-role', [VehicleController::class, 'destroyLastAndResetRole'])->middleware('auth')->name('vehicle.delete.reset.role');
 
@@ -103,8 +106,9 @@ Route::get('/covoiturage/{id}', 'App\Http\Controllers\TripsController@show')->na
 Route::get('/covoiturage/{id}/participate', 'App\Http\Controllers\TripsController@participate')->name('trips.participate');
 
 // Création et gestion des covoit
-Route::get('/trip/create', [TripController::class, 'create'])->middleware('auth')->name('trip.create');
 Route::post('/trip', [TripController::class, 'store'])->middleware('auth')->name('trip.store');
+Route::get('/trip/{id}/edit', [TripController::class, 'edit'])->middleware('auth')->name('trip.edit');
+Route::put('/trip/{id}', [TripController::class, 'update'])->middleware('auth')->name('trip.update');
 Route::delete('/trip/{id}/cancel', [HomeController::class, 'cancelTrip'])->middleware('auth')->name('trip.cancel');
 Route::post('/trip/{id}/start', [HomeController::class, 'startTrip'])->middleware('auth')->name('trip.start');
 Route::post('/trip/{id}/end', [HomeController::class, 'endTrip'])->middleware('auth')->name('trip.end');

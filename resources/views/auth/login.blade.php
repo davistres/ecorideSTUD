@@ -17,7 +17,7 @@
 
             <div class="form-group">
                 <label for="password">Mot de passe</label>
-                <input id="password" type="password" name="password" required>
+                <input id="password" type="password" name="password" required autocomplete="current-password">
                 @error('password')
                     <span class="error-message">{{ $message }}</span>
                 @enderror

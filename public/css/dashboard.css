@@ -1,7 +1,7 @@
 /* Dashboard utilisateur*/
 .dashboard-container {
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 0 auto 60px auto;
     padding: 1rem;
 }
 
@@ -170,6 +170,11 @@
     height: 100%;
     object-fit: cover;
 }
+
+.photo-container {
+    position: relative;
+}
+
 
 .delete-photo-btn {
     position: absolute;
@@ -399,6 +404,13 @@
     background-color: #e74c3c;
 }
 
+.modal-footer {
+    padding: 1rem;
+    text-align: right;
+    border-top: 1px solid #f0f0f0;
+}
+
+
 /* card //////////////////////////////////////////*/
 .trip-cards {
     display: flex;
@@ -424,11 +436,13 @@
     border-bottom: 1px solid #f0f0f0;
 }
 
-.trip-route {
+.trip-route-dash {
+    justify-content: center;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
     margin-bottom: 0.5rem;
+    font-size: 1.2rem;
     font-weight: 500;
 }
 
@@ -436,26 +450,42 @@
     color: #2c3e50;
 }
 
-.trip-date {
+.trip-date-dash {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    color: #7f8c8d;
-    font-size: 0.9rem;
+    color: #2c3e50;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    font-weight: 500;
 }
+
+.date-display {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.arrival-day-info {
+    color: #e67e22;
+    font-weight: bold;
+    margin-left: auto;
+}
+
+
 
 .trip-card-content {
     padding: 1rem;
 }
 
-.trip-time {
+.trip-time-dash {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    flex-direction: row;
     gap: 0.5rem;
     margin-bottom: 0.75rem;
 }
 
-.departure-time, .arrival-time {
+.departure-time-dash, .arrival-time-dash {
     display: flex;
     align-items: center;
 }
@@ -530,7 +560,31 @@
     border-top: 1px solid #f0f0f0;
 }
 
-.trip-detail-btn, .trip-passengers-btn, .trip-start-btn, .trip-end-btn {
+@media (max-width: 480px) {
+    .trip-card-footer {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .trip-footer-left, .trip-footer-right {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+.trip-footer-left {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.trip-footer-right {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.trip-detail-btn, .trip-passengers-btn, .trip-start-btn, .trip-end-btn, .trip-edit-btn {
     padding: 0.5rem 0.75rem;
     border-radius: 5px;
     font-weight: 500;
@@ -541,6 +595,14 @@
     align-items: center;
     gap: 0.5rem;
     border: none;
+}
+
+@media (max-width: 360px) {
+    .trip-start-btn, .trip-edit-btn {
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+    }
 }
 
 .trip-detail-btn {
@@ -587,6 +649,15 @@
 
 .trip-end-btn:hover {
     background-color: #d35400;
+}
+
+.trip-edit-btn {
+    background-color: #3498db;
+    color: white;
+}
+
+.trip-edit-btn:hover {
+    background-color: #2980b9;
 }
 
 .trip-cancel-btn {
@@ -657,6 +728,13 @@
     transition: all 0.3s;
 }
 
+@media (max-width: 420px) {
+    .vehicle-card {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
 .vehicle-card:hover {
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
@@ -698,6 +776,14 @@
 @media (min-width: 768px) {
     .vehicle-actions {
         flex-direction: row;
+    }
+}
+
+@media (max-width: 420px) {
+    .vehicle-actions {
+        flex-direction: row;
+        justify-content: center;
+        width: 100%;
     }
 }
 
@@ -751,6 +837,7 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    overflow: hidden;
 }
 
 .preference-libre {
@@ -760,6 +847,7 @@
 .preference-icon {
     width: 40px;
     height: 40px;
+    min-width: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -767,6 +855,7 @@
     color: white;
     border-radius: 50%;
     font-size: 1.25rem;
+    flex-shrink: 0;
 }
 
 /* Problème de hoverflow... hoverflow: hidden n'a pas marché!!!! J'ai du demander de l'aide pour le solutionner*/
@@ -776,18 +865,144 @@
 }
 /* Prends toute la largeur en taille mobile*/
 
-.preference-item.preference-libre .preference-text {
+.preference-text {
     flex: 1;
     min-width: 0; /* Très important pour le wrapping */
     padding-left: 0.5rem;
+    overflow: hidden;
 }
 /* Permet au texte d'être responsive*/
 
 .preference-item.preference-libre .preference-text span {
-     word-wrap: break-word;
+    white-space: normal;
+    word-wrap: break-word;
 }
 /* coupe les mots trop longs avec un retour à la ligne*/
 /* Logique avec flex:1; min-width: 0; et word-wrap à maitriser!!!!!!!!!!!!!!!!!*/
+
+
+@media (max-width: 480px) {
+    .trip-route-dash {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Tourne la fleche */
+    .trip-route-dash .svg-inline--fa.fa-arrow-right {
+        transform: rotate(90deg);
+        margin: 0.5rem 0;
+    }
+}
+
+
+@media (max-width: 420px) {
+    .preferences-list {
+        flex-direction: column;
+    }
+
+    .preference-item {
+        flex: 1 0 100%;
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .preference-icon {
+        margin: 0 auto;
+    }
+
+    .preference-text {
+        padding-left: 0;
+        text-align: center;
+    }
+
+    .trip-date-dash {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .date-display {
+        justify-content: center;
+    }
+
+    .arrival-day-info {
+        margin-left: 0;
+    }
+
+    .trip-time-dash {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .trip-status {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+
+
+
+    .trip-vehicle {
+        text-align: center;
+    }
+}
+
+
+@media (max-width: 360px) {
+
+    .profile-info {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    #profile-avatar-clickable {
+        margin: 0 auto 1rem;
+    }
+
+    .profile-details {
+        width: 100%;
+        text-align: center;
+    }
+
+    .profile-details p {
+        display: inline;
+    }
+
+    .profile-credits {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .credits-info {
+        margin-top: 0.25rem;
+    }
+
+    .trip-footer-left, .trip-footer-right {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.75rem;
+    }
+
+    .trip-card-footer {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .trip-start-btn, .trip-edit-btn, .trip-cancel-btn, .cancel-form {
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
+    }
+
+    .cancel-form button {
+        width: 100%;
+    }
+}
 
 @media (min-width: 768px) {
     .fa-info-circle {
@@ -1005,7 +1220,7 @@
 .modal-close {
     border: none;
     background: none;
-    font-size: 1.5rem;
+    font-size: 1rem;
     cursor: pointer;
     color: #7f8c8d;
 }
@@ -1018,7 +1233,13 @@
 .modal-body P {
     margin-bottom: 1rem;
     color: #2c3e50;
+    margin-left: 10px;
 }
+
+#modal_edit_immat {
+    background-color: #eee;
+}
+
 
 .passengers-list {
     display: flex;
@@ -1049,15 +1270,6 @@
     flex: 1;
 }
 
-/* Animation des widgets */
-.dashboard-widget {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.dashboard-widget:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
 
 /* Animation des icônes */
 .no-trips-icon, .no-vehicles-icon, .avatar-placeholder {
@@ -1188,10 +1400,6 @@
     }
 
     /* Autres ajustements */
-    .trip-time {
-        flex-direction: row;
-        gap: 1.5rem;
-    }
     .preferences-list {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -1332,3 +1540,120 @@
     transform: translateY(-2px);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
+
+/* Compteur de caractere */
+.char-counter {
+    font-size: 0.8rem;
+    color: #777;
+    text-align: right;
+    margin-top: 0.25rem;
+    transition: color 0.3s ease;
+}
+
+/* Message d'erreur */
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+    border-color: #e74c3c;
+    background-color: #fff8f8;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.important-warning {
+    color: #e74c3c;
+    font-weight: bold;
+    border-left: 3px solid #e74c3c;
+    padding-left: 0.5rem;
+    margin-top: 0.5rem;
+    display: block;
+}
+
+/* suppression d'un véhicule lié à un covoit */
+.warning-message {
+    display: flex;
+    align-items: flex-start;
+    background-color: #fff3e0;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+}
+
+.warning-message i {
+    color: #ff9800;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+}
+
+.linked-trips {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.linked-trips li {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.linked-trips li:last-child {
+    border-bottom: none;
+}
+
+.trip-route {
+    font-weight: 500;
+}
+
+.trip-date {
+    color: #666;
+}
+
+.form-submit {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.cancel-button {
+    padding: 0.75rem 1rem;
+    background-color: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cancel-button:hover {
+    background-color: #e0e0e0;
+}
+
+.danger-button {
+    padding: 0.75rem 1rem;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.danger-button:hover {
+    background-color: #c0392b;
+}
+

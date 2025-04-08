@@ -7,3 +7,11 @@
 @import 'auth.css';
 @import 'trips.css';
 @import 'pages.css';
+
+label {
+    margin-top: 15px;
+}
+
+hr {
+    margin-bottom: 1rem;
+}

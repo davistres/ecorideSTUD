@@ -43,6 +43,11 @@ class TripsController extends Controller
             ->where('COVOITURAGE.city_arr', $validated['lieu_arrivee'])
             ->where('COVOITURAGE.departure_date', $validated['date'])
             ->where('COVOITURAGE.n_tickets', '>', 0)
+            ->where('COVOITURAGE.cancelled', false)
+            ->where(function($query) {
+                $query->whereNull('COVOITURAGE.trip_completed')
+                      ->orWhere('COVOITURAGE.trip_completed', false);
+            })
             ->get();
 
         if ($covoiturages->isEmpty()) {
@@ -52,6 +57,11 @@ class TripsController extends Controller
                 ->where('city_arr', $validated['lieu_arrivee'])
                 ->where('departure_date', '>', $validated['date'])
                 ->where('n_tickets', '>', 0)
+                ->where('cancelled', false)
+                ->where(function($query) {
+                    $query->whereNull('trip_completed')
+                          ->orWhere('trip_completed', false);
+                })
                 ->orderBy('departure_date', 'asc')
                 ->first();
 

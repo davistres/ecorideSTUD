@@ -28,3 +28,5 @@ yarn-error.log
 .php-cs-fixer.cache
 .DS_Store
 Thumbs.db
+.augment/
+docperso

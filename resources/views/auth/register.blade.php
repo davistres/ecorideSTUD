@@ -25,7 +25,7 @@
 
             <div class="form-group">
                 <label for="password">Mot de passe</label>
-                <input id="password" type="password" name="password" required>
+                <input id="password" type="password" name="password" required autocomplete="new-password">
                 @error('password')
                     <span class="error-message">{{ $message }}</span>
                 @enderror
@@ -33,7 +33,8 @@
 
             <div class="form-group">
                 <label for="password-confirm">Confirmer le mot de passe</label>
-                <input id="password-confirm" type="password" name="password_confirmation" required>
+                <input id="password-confirm" type="password" name="password_confirmation" required
+                    autocomplete="new-password">
             </div>
 
             <div class="info-message">

@@ -2,7 +2,7 @@
 .covoiturage-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 100px 20px 40px;
+    padding: 40px 20px 60px 40px;
 }
 
 .covoiturage-title {
@@ -443,6 +443,23 @@
 
     .trip-info-container {
         flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .trip-info-left {
+        align-items: center;
+        width: 100%;
+    }
+
+    .trip-route {
+        justify-content: center;
+    }
+
+    .trip-date, .trip-time {
+        text-align: center;
+        align-items: center;
+        gap: 1rem;
     }
 
     .covoiturage-top-info {
@@ -451,13 +468,55 @@
 
     .covoiturage-top-info .covoiturage-driver {
         width: 100%;
+        flex-direction: column;
         align-items: center;
+        justify-content: center;
         margin-bottom: 1rem;
+    }
+
+    .covoiturage-top-info .driver-photo {
+        margin: 0 auto 0.75rem;
+    }
+
+    .covoiturage-top-info .driver-info {
+        text-align: center;
+        width: 100%;
     }
 
     .covoiturage-booking-info {
         width: 100%;
         align-items: center;
+    }
+
+    .mobile-buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .mobile-buttons .btn-base {
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 300px) {
+    .driver-rating {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .trip-route {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .route-arrow {
+        transform: rotate(90deg);
+        margin: 0.5rem 0;
     }
 }
 
@@ -516,6 +575,9 @@
     color: #2c3e50;
     font-size: 1.8rem;
     margin-bottom: 1rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
 }
 
 .welcome-message p {

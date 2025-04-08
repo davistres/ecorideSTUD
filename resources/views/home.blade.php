@@ -19,7 +19,7 @@
                     <div class="profile-info">
                         <div class="profile-avatar" id="profile-avatar-clickable">
                             @if ($profile_photo && $profile_photo_mime)
-                                <img src="data:{{ $profile_photo_mime }};base64,{{ $profile_photo }}" alt="Photo actuelle">
+                                <img src="data:{{ $profile_photo_mime }};base64,{{ $profile_photo }}" alt="Profil">
                             @else
                                 <div class="photo-placeholder">
                                     <i class="fas fa-user"></i>
@@ -204,7 +204,8 @@
                 <div class="widget-header">
                     <h2>Mes Trajets Proposés</h2>
                     <div class="widget-actions">
-                        <a href="{{ route('trip.create') }}" class="widget-action-btn"><i class="fas fa-plus"></i></a>
+                        <button type="button" class="widget-action-btn open-create-trip-modal"><i
+                                class="fas fa-plus"></i></button>
                     </div>
                 </div>
                 <div class="widget-content">
@@ -213,24 +214,40 @@
                             @foreach ($offeredTrips as $trip)
                                 <div class="trip-card">
                                     <div class="trip-card-header">
-                                        <div class="trip-route">
+                                        <div class="trip-route-dash">
                                             <span class="trip-city">{{ $trip->city_dep }}</span>
                                             <i class="fas fa-arrow-right"></i>
                                             <span class="trip-city">{{ $trip->city_arr }}</span>
                                         </div>
-                                        <div class="trip-date">
-                                            <i class="far fa-calendar-alt"></i>
-                                            {{ \Carbon\Carbon::parse($trip->departure_date)->format('d/m/Y') }}
+                                        <div class="trip-date-dash">
+                                            <span class="date-display">
+                                                <i class="far fa-calendar-alt"></i>
+                                                {{ \Carbon\Carbon::parse($trip->departure_date)->format('d/m/Y') }}
+                                            </span>
+                                            @php
+                                                $departureDate = \Carbon\Carbon::parse($trip->departure_date);
+                                                $arrivalDate = \Carbon\Carbon::parse($trip->arrival_date);
+                                                $diffInDays = $departureDate->diffInDays($arrivalDate);
+                                            @endphp
+                                            @if ($diffInDays > 0)
+                                                <span class="arrival-day-info">
+                                                    @if ($diffInDays == 1)
+                                                        Arrivée le lendemain
+                                                    @else
+                                                        Arrivée {{ $diffInDays }} jours après
+                                                    @endif
+                                                </span>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="trip-card-content">
-                                        <div class="trip-time">
-                                            <div class="departure-time">
+                                        <div class="trip-time-dash">
+                                            <div class="departure-time-dash">
                                                 <span class="time-label">Départ :</span>
                                                 <span
                                                     class="time-value">{{ \Carbon\Carbon::parse($trip->departure_time)->format('H:i') }}</span>
                                             </div>
-                                            <div class="arrival-time">
+                                            <div class="arrival-time-dash">
                                                 <span class="time-label">Arrivée :</span>
                                                 <span
                                                     class="time-value">{{ \Carbon\Carbon::parse($trip->arrival_time)->format('H:i') }}</span>
@@ -253,26 +270,35 @@
                                         </div>
                                     </div>
                                     <div class="trip-card-footer">
-                                        @if ($trip->confirmations->count() > 0)
-                                            <button class="trip-passengers-btn" data-trip="{{ $trip->covoit_id }}">
-                                                <i class="fas fa-user-friends"></i> Passagers
-                                            </button>
-                                        @endif
-                                        @if (strtotime($trip->departure_date) > strtotime('today'))
-                                            @if (!isset($trip->trip_started) || !$trip->trip_started)
-                                                <button class="trip-start-btn"
-                                                    data-trip="{{ $trip->covoit_id }}">Démarrer</button>
-                                            @else
-                                                <button class="trip-end-btn" data-trip="{{ $trip->covoit_id }}">Arrivée à
-                                                    destination</button>
+                                        <div class="trip-footer-left">
+                                            @if ($trip->confirmations->count() > 0)
+                                                <button class="trip-passengers-btn" data-trip="{{ $trip->covoit_id }}">
+                                                    <i class="fas fa-user-friends"></i> Passagers
+                                                </button>
                                             @endif
-                                            <form action="{{ route('trip.cancel', $trip->covoit_id) }}" method="POST"
-                                                class="cancel-form">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="trip-cancel-btn">Annuler</button>
-                                            </form>
-                                        @endif
+                                            @if (strtotime($trip->departure_date) > strtotime('today'))
+                                                @if (!isset($trip->trip_started) || !$trip->trip_started)
+                                                    <button class="trip-start-btn"
+                                                        data-trip="{{ $trip->covoit_id }}">Démarrer</button>
+                                                @else
+                                                    <button class="trip-end-btn"
+                                                        data-trip="{{ $trip->covoit_id }}">Arrivée à
+                                                        destination</button>
+                                                @endif
+                                            @endif
+                                        </div>
+                                        <div class="trip-footer-right">
+                                            @if (strtotime($trip->departure_date) > strtotime('today'))
+                                                <button type="button" class="trip-edit-btn"
+                                                    data-trip="{{ $trip->covoit_id }}">Modifier</button>
+                                                <form action="{{ route('trip.cancel', $trip->covoit_id) }}"
+                                                    method="POST" class="cancel-form">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="trip-cancel-btn">Annuler</button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
@@ -283,8 +309,8 @@
                                 <i class="fas fa-route"></i>
                             </div>
                             <p>Vous n'avez pas encore proposé de trajet.</p>
-                            <a href="{{ route('trip.create') }}" class="create-trip-btn">Proposer un
-                                trajet</a>
+                            <button type="button" class="create-trip-btn open-create-trip-modal">Proposer un
+                                trajet</button>
                         </div>
                     @endif
                 </div>
@@ -553,6 +579,7 @@
                         </div>
                         <div class="form-group">
                             <label for="pref_libre">Autres préférences ou informations</label>
+                            <small class="form-help-text">Maximum 255 caractères.</small>
                             <textarea id="pref_libre" name="pref_libre" rows="3"
                                 placeholder="Exemple: Musique classique, conversation limitée, etc."></textarea>
                         </div>
@@ -573,16 +600,19 @@
                         </div>
                         <div class="form-group">
                             <label for="marque">Marque*</label>
-                            <input type="text" id="marque" name="marque" required>
+                            <input type="text" id="marque" name="marque" maxlength="12" required>
+                            <small class="form-help-text">Maximum 12 caractères.</small>
                         </div>
                         <div class="form-group">
                             <label for="modele">Modèle*</label>
-                            <input type="text" id="modele" name="modele" required>
+                            <input type="text" id="modele" name="modele" maxlength="24" required>
+                            <small class="form-help-text">Maximum 24 caractères.</small>
                         </div>
                         <div class="form-group">
-                            <label for="immat">Immatriculation*</label>
-                            <input type="text" id="immat" name="immat" required>
-                            <small class="form-help-text">Le numéro d'immatriculation doit être unique. Un message d'erreur
+                            <label for="immat_text">Immatriculation*</label>
+                            <input type="text" id="immat_text" name="immat" maxlength="10" required>
+                            <small class="form-help-text">Maximum 10 caractères. Le numéro d'immatriculation doit être
+                                unique. Un message d'erreur
                                 apparaîtra si ce numéro existe déjà.</small>
                         </div>
                         <div class="form-group">
@@ -594,7 +624,8 @@
                         </div>
                         <div class="form-group">
                             <label for="couleur">Couleur*</label>
-                            <input type="text" id="couleur" name="couleur" required>
+                            <input type="text" id="couleur" name="couleur" maxlength="12" required>
+                            <small class="form-help-text">Maximum 12 caractères.</small>
                         </div>
                         <div class="form-group">
                             <label for="n_place">Nombre de places*</label>
@@ -606,9 +637,10 @@
                             <label for="energie">Type d'énergie*</label>
                             <select id="energie" name="energie" required>
                                 <option value="Essence">Essence</option>
-                                <option value="Diesel">Diesel</option>
-                                <option value="Électrique">Électrique</option>
+                                <option value="Diesel/Gazole">Diesel/Gazole</option>
+                                <option value="Electrique">Electrique</option>
                                 <option value="Hybride">Hybride</option>
+                                <option value="GPL">GPL</option>
                             </select>
                             <small class="form-help-text">Les véhicules électriques sont considérés comme écologiques sur
                                 notre plateforme.</small>
@@ -662,7 +694,8 @@
             <div class="modal-body">
                 <p>En revenant au rôle "Passager", vous ne pourrez plus éditer des covoiturages et vous perdrez toutes les
                     informations
-                    enregistrées (préférences, véhicules, etc...). Voulez-vous confirmer ?</p>
+                    enregistrées (préférences, véhicules, vos éventuels covoiturage en cours,etc...). Voulez-vous confirmer
+                    ?</p>
                 <button class="confirm-revert-btn" data-reset-url="{{ route('user.role.reset') }}">Confirmer</button>
             </div>
         </div>
@@ -703,11 +736,12 @@
                     </div>
                     <div class="form-group">
                         <label for="password">Nouveau mot de passe (laisser vide pour conserver l'actuel)</label>
-                        <input type="password" id="password" name="password">
+                        <input type="password" id="password" name="password" autocomplete="new-password">
                     </div>
                     <div class="form-group">
                         <label for="password_confirmation">Confirmation du nouveau mot de passe</label>
-                        <input type="password" id="password_confirmation" name="password_confirmation">
+                        <input type="password" id="password_confirmation" name="password_confirmation"
+                            autocomplete="new-password">
                     </div>
                     <div class="form-submit">
                         <button type="submit" class="search-button">Enregistrer les modifications</button>
@@ -731,9 +765,9 @@
                         <div class="photo-preview-area" id="photo-preview"
                             data-delete-url="{{ route('profile.photo.delete') }}">
                             @if ($profile_photo && $profile_photo_mime)
-                                <div class="photo-container" style="position: relative;">
+                                <div class="photo-container">
                                     <img src="data:{{ $profile_photo_mime }};base64,{{ $profile_photo }}"
-                                        alt="Photo actuelle">
+                                        alt="Profil">
                                     <button class="delete-photo-btn"
                                         data-delete-url="{{ route('profile.photo.delete') }}">×</button>
                                 </div>
@@ -838,26 +872,30 @@
                         </div>
                         <div class="form-group">
                             <label for="modal_add_marque">Marque*</label>
-                            <input type="text" id="modal_add_marque" name="marque" required>
+                            <input type="text" id="modal_add_marque" name="marque" maxlength="12" required>
+                            <small class="form-help-text">Maximum 12 caractères. Exemple: Renault, Peugeot, etc.</small>
                         </div>
                         <div class="form-group">
                             <label for="modal_add_modele">Modèle*</label>
-                            <input type="text" id="modal_add_modele" name="modele" required>
+                            <input type="text" id="modal_add_modele" name="modele" maxlength="24" required>
+                            <small class="form-help-text">Maximum 24 caractères. Exemple: Clio, 208, etc.</small>
                         </div>
                         <div class="form-group">
                             <label for="modal_add_immat">Immatriculation*</label>
-                            <input type="text" id="modal_add_immat" name="immat" required>
-                            <small class="form-help-text">Le numéro d'immatriculation doit être unique...</small>
+                            <input type="text" id="modal_add_immat" name="immat" maxlength="10" required>
+                            <small class="form-help-text">Maximum 10 caractères. Le numéro d'immatriculation doit être
+                                unique.</small>
                         </div>
                         <div class="form-group">
                             <label for="modal_add_date_first_immat">Date de la 1ère immatriculation*</label>
                             <input type="date" id="modal_add_date_first_immat" name="date_first_immat" required
                                 max="{{ date('Y-m-d') }}">
-                            <small class="form-help-text">La date doit être antérieure à aujourd'hui.</small>
+                            <small class="form-help-text">La date doit être antérieure ou égale à aujourd'hui.</small>
                         </div>
                         <div class="form-group">
                             <label for="modal_add_couleur">Couleur*</label>
-                            <input type="text" id="modal_add_couleur" name="couleur" required>
+                            <input type="text" id="modal_add_couleur" name="couleur" maxlength="12" required>
+                            <small class="form-help-text">Maximum 12 caractères. Exemple: Rouge, Noir, etc.</small>
                         </div>
                         <div class="form-group">
                             <label for="modal_add_n_place">Nombre de places*</label>
@@ -869,9 +907,10 @@
                             <label for="modal_add_energie">Type d'énergie*</label>
                             <select id="modal_add_energie" name="energie" required>
                                 <option value="Essence">Essence</option>
-                                <option value="Diesel">Diesel</option>
-                                <option value="Électrique">Électrique</option>
+                                <option value="Diesel/Gazole">Diesel/Gazole</option>
+                                <option value="Electrique">Electrique</option>
                                 <option value="Hybride">Hybride</option>
+                                <option value="GPL">GPL</option>
                             </select>
                             <small class="form-help-text">Les véhicules électriques sont considérés comme
                                 écologiques.</small>
@@ -894,13 +933,16 @@
                 <button type="button" class="modal-close">×</button>
             </div>
             <div class="modal-body">
-                <p>Ceci est votre dernier véhicule enregistré.</p>
-                <p>Si vous le supprimez, votre statut sera changé en <strong>Passager</strong>. Vous ne pourrez plus
-                    proposer de covoiturage et vous perdrez vos préférences de conducteur.</p>
+                <div class="warning-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>ATTENTION! En supprimant votre dernier véhicule enregistré, vous perdrez votre rôle de conducteur,
+                        tous vos éventuels covoiturage en cours, ainsi que toutes les informations lié à ce statut...
+                    </p>
+                </div>
                 <p><strong>Êtes-vous sûr de vouloir continuer ?</strong></p>
             </div>
-            <div class="modal-footer" style="padding: 1rem; text-align: right; border-top: 1px solid #f0f0f0;">
-                <button type="button" id="confirm-delete-last-vehicle" class="btn-confirm-delete">Supprimer et Devenir
+            <div class="modal-footer">
+                <button type="button" id="confirm-delete-last-vehicle" class="btn-confirm-delete">Supprimer et devenir
                     Passager</button>
             </div>
         </div>
@@ -922,8 +964,7 @@
                         <div class="form-group">
                             <label for="modal_edit_immat">Immatriculation</label>
                             <!-- Immatriculation non modifiable -->
-                            <input type="text" id="modal_edit_immat" name="immat" readonly
-                                style="background-color: #eee;">
+                            <input type="text" id="modal_edit_immat" name="immat" readonly>
                             <small class="form-help-text">L'immatriculation ne peut pas être modifiée.</small>
                         </div>
                         <div class="form-group">
@@ -933,15 +974,18 @@
                         </div>
                         <div class="form-group">
                             <label for="modal_edit_marque">Marque*</label>
-                            <input type="text" id="modal_edit_marque" name="marque" required>
+                            <input type="text" id="modal_edit_marque" name="marque" maxlength="12" required>
+                            <small class="form-help-text">Maximum 12 caractères. Exemple: Renault, Peugeot, etc.</small>
                         </div>
                         <div class="form-group">
                             <label for="modal_edit_modele">Modèle*</label>
-                            <input type="text" id="modal_edit_modele" name="modele" required>
+                            <input type="text" id="modal_edit_modele" name="modele" maxlength="24" required>
+                            <small class="form-help-text">Maximum 24 caractères. Exemple: Clio, 208, etc.</small>
                         </div>
                         <div class="form-group">
                             <label for="modal_edit_couleur">Couleur*</label>
-                            <input type="text" id="modal_edit_couleur" name="couleur" required>
+                            <input type="text" id="modal_edit_couleur" name="couleur" maxlength="12" required>
+                            <small class="form-help-text">Maximum 12 caractères. Exemple: Rouge, Noir, etc.</small>
                         </div>
                         <div class="form-group">
                             <label for="modal_edit_n_place">Nombre de places*</label>
@@ -952,11 +996,13 @@
                             <label for="modal_edit_energie">Type d'énergie*</label>
                             <select id="modal_edit_energie" name="energie" required>
                                 <option value="Essence">Essence</option>
-                                <option value="Diesel">Diesel</option>
-                                <option value="Électrique">Électrique</option>
+                                <option value="Diesel/Gazole">Diesel/Gazole</option>
+                                <option value="Electrique">Electrique</option>
                                 <option value="Hybride">Hybride</option>
                                 <option value="GPL">GPL</option>
                             </select>
+                            <small class="form-help-text">Valeurs acceptées: Essence, Diesel, Electrique, Hybride,
+                                GPL</small>
                         </div>
                     </div>
 
@@ -965,6 +1011,305 @@
                             modifications</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale pour créer un covoit -->
+    <div class="modal" id="createTripModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Proposer un trajet</h3>
+                <button type="button" class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="createTripForm" action="{{ route('trip.store') }}" method="POST">
+                    @csrf
+
+                    <div class="form-grid">
+                        <div class="form-section">
+                            <h4>Lieu de départ</h4>
+                            <div class="form-group">
+                                <label for="departure_address">Adresse de départ*</label>
+                                <input type="text" id="departure_address" name="departure_address" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="add_dep_address">Complément d'adresse</label>
+                                <input type="text" id="add_dep_address" name="add_dep_address">
+                            </div>
+                            <div class="form-group">
+                                <label for="postal_code_dep">Code postal*</label>
+                                <input type="text" id="postal_code_dep" name="postal_code_dep" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="city_dep">Ville*</label>
+                                <input type="text" id="city_dep" name="city_dep" required>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Lieu d'arrivée</h4>
+                            <div class="form-group">
+                                <label for="arrival_address">Adresse d'arrivée*</label>
+                                <input type="text" id="arrival_address" name="arrival_address" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="add_arr_address">Complément d'adresse</label>
+                                <input type="text" id="add_arr_address" name="add_arr_address">
+                            </div>
+                            <div class="form-group">
+                                <label for="postal_code_arr">Code postal*</label>
+                                <input type="text" id="postal_code_arr" name="postal_code_arr" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="city_arr">Ville*</label>
+                                <input type="text" id="city_arr" name="city_arr" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="form-grid">
+                        <div class="form-section">
+                            <h4>Date et heure</h4>
+                            <div class="form-group">
+                                <label for="departure_date">Date de départ*</label>
+                                <input type="date" id="departure_date" name="departure_date" required>
+                                <small class="form-help-text">La date doit être égale ou supérieure à aujourd'hui.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="departure_time">Heure de départ*</label>
+                                <input type="time" id="departure_time" name="departure_time" required>
+                                <small class="form-help-text important-warning">Attention : Un délai minimum de 4 heures
+                                    est requis entre l'heure de création du covoiturage et l'heure de départ.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="arrival_date">Date d'arrivée*</label>
+                                <input type="date" id="arrival_date" name="arrival_date" required>
+                                <small class="form-help-text">La date doit être égale ou supérieure à la date de
+                                    départ.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="arrival_time">Heure d'arrivée estimée*</label>
+                                <input type="time" id="arrival_time" name="arrival_time" required>
+                                <small class="form-help-text">L'heure d'arrivée estimée est une valeur optimiste basée sur
+                                    votre expérience.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="max_travel_time">Durée maximale du voyage*</label>
+                                <input type="time" id="max_travel_time" name="max_travel_time" required>
+                                <small class="form-help-text">Durée maximale en cas de conditions défavorables (bouchons,
+                                    intempéries, etc.). Doit être supérieure à la durée estimée.</small>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Détails du trajet</h4>
+                            <div class="form-group">
+                                <label for="vehicle_select">Véhicule*</label>
+                                <select id="vehicle_select" name="immat" required>
+                                    @foreach ($vehicles as $vehicle)
+                                        <option value="{{ $vehicle->immat }}" data-seats="{{ $vehicle->n_place }}">
+                                            {{ $vehicle->brand }}
+                                            {{ $vehicle->model }} ({{ $vehicle->immat }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="price">Prix par passager (en crédits)*</label>
+                                <div class="price-input-group">
+                                    <input type="number" id="price" name="price" min="2" required>
+                                    <span class="price-unit">crédits</span>
+                                </div>
+                                <small class="form-help-text">Minimum 2 crédits (dont 2 crédits prélevés par la
+                                    plateforme)</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="n_tickets">Nombre de places disponibles*</label>
+                                <select id="n_tickets" name="n_tickets" required>
+                                </select>
+                                <small class="form-help-text">Le nombre maximum de places disponibles dépend du nombre de
+                                    places de votre véhicule (moins la place du conducteur).</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-submit">
+                        <button type="submit" class="search-button">Proposer ce trajet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modifier un covoit -->
+    <div class="modal" id="editTripModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Modifier un trajet</h3>
+                <button type="button" class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="editTripForm" action="" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" id="edit_covoit_id" name="covoit_id" value="">
+
+                    <div class="form-grid">
+                        <div class="form-section">
+                            <h4>Lieu de départ</h4>
+                            <div class="form-group">
+                                <label for="edit_departure_address">Adresse de départ*</label>
+                                <input type="text" id="edit_departure_address" name="departure_address" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_add_dep_address">Complément d'adresse</label>
+                                <input type="text" id="edit_add_dep_address" name="add_dep_address">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_postal_code_dep">Code postal*</label>
+                                <input type="text" id="edit_postal_code_dep" name="postal_code_dep" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_city_dep">Ville*</label>
+                                <input type="text" id="edit_city_dep" name="city_dep" required>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Lieu d'arrivée</h4>
+                            <div class="form-group">
+                                <label for="edit_arrival_address">Adresse d'arrivée*</label>
+                                <input type="text" id="edit_arrival_address" name="arrival_address" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_add_arr_address">Complément d'adresse</label>
+                                <input type="text" id="edit_add_arr_address" name="add_arr_address">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_postal_code_arr">Code postal*</label>
+                                <input type="text" id="edit_postal_code_arr" name="postal_code_arr" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_city_arr">Ville*</label>
+                                <input type="text" id="edit_city_arr" name="city_arr" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="form-grid">
+                        <div class="form-section">
+                            <h4>Date et heure</h4>
+                            <div class="form-group">
+                                <label for="edit_departure_date">Date de départ*</label>
+                                <input type="date" id="edit_departure_date" name="departure_date" required>
+                                <small class="form-help-text">La date doit être égale ou supérieure à aujourd'hui.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_departure_time">Heure de départ*</label>
+                                <input type="time" id="edit_departure_time" name="departure_time" required>
+                                <small class="form-help-text">Attention : si le départ est prévu aujourd'hui, l'heure doit
+                                    être au moins 4 heures après l'heure actuelle.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_arrival_date">Date d'arrivée*</label>
+                                <input type="date" id="edit_arrival_date" name="arrival_date" required>
+                                <small class="form-help-text">La date doit être égale ou supérieure à la date de
+                                    départ.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_arrival_time">Heure d'arrivée estimée*</label>
+                                <input type="time" id="edit_arrival_time" name="arrival_time" required>
+                                <small class="form-help-text">L'heure d'arrivée estimée est une valeur optimiste basée sur
+                                    votre expérience.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_max_travel_time">Durée maximale du voyage*</label>
+                                <input type="time" id="edit_max_travel_time" name="max_travel_time" required>
+                                <small class="form-help-text">Durée maximale en cas de conditions défavorables (bouchons,
+                                    intempéries, etc.). Doit être supérieure à la durée estimée.</small>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>Détails du trajet</h4>
+                            <div class="form-group">
+                                <label for="edit_immat">Véhicule*</label>
+                                <select id="edit_immat" name="immat" required>
+                                    @foreach ($vehicles as $vehicle)
+                                        <option value="{{ $vehicle->immat }}" data-seats="{{ $vehicle->n_place }}">
+                                            {{ $vehicle->brand }}
+                                            {{ $vehicle->model }} ({{ $vehicle->immat }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_price">Prix par passager (en crédits)*</label>
+                                <div class="price-input-group">
+                                    <input type="number" id="edit_price" name="price" min="2" required>
+                                    <span class="price-unit">crédits</span>
+                                </div>
+                                <small class="form-help-text">Minimum 2 crédits (dont 2 crédits prélevés par la
+                                    plateforme)</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_n_tickets">Nombre de places disponibles*</label>
+                                <select id="edit_n_tickets" name="n_tickets" required>
+                                </select>
+                                <small class="form-help-text">Le nombre maximum de places disponibles dépend du nombre de
+                                    places de votre véhicule (moins la place du conducteur).</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-submit">
+                        <button type="submit" class="search-button">Modifier ce trajet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale de confirmation => suppression d'un véhicule lié à au moins un covoit -->
+    <div class="modal" id="vehicleWithTripsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Attention : Véhicule utilisé dans des covoiturages</h3>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="warning-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Ce véhicule est utilisé dans un ou plusieurs covoiturages. Si vous le supprimez, tous les
+                        covoiturages associés seront également supprimés.</p>
+                </div>
+                <div class="trips-list" id="linked-trips-list">
+                    <!-- La liste des covoit sera insérée ici dynamiquement -->
+                </div>
+                <div class="form-submit">
+                    <button type="button" class="cancel-button modal-close">Annuler</button>
+                    <button type="button" class="confirm-delete-vehicle-btn danger-button">Supprimer quand même</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale de confirmation => suppression d'un véhicule sans covoit -->
+    <div class="modal" id="simpleVehicleDeleteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmation de suppression</h3>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Vous allez supprimer ce véhicule de votre liste... C'est vraiment ce que vous désirez?</p>
+                <div class="form-submit">
+                    <button type="button" class="cancel-button modal-close">Annuler</button>
+                    <button type="button" class="confirm-simple-delete-btn danger-button">Supprimer</button>
+                </div>
             </div>
         </div>
     </div>

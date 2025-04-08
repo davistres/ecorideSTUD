@@ -221,6 +221,7 @@
 
 .form-group label {
     display: block;
+    margin-top: 15px;
     margin-bottom: 0.5rem;
 }
 

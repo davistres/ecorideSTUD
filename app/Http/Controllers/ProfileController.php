@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
@@ -37,7 +38,13 @@ class ProfileController extends Controller
             $user->password_hash = Hash::make($request->password);
         }
 
-        $user->save();
+        DB::table('UTILISATEUR')
+            ->where('user_id', $user->user_id)
+            ->update([
+                'pseudo' => $user->pseudo,
+                'mail' => $user->mail,
+                'password_hash' => $user->password_hash
+            ]);
 
         if ($request->expectsJson()) {
             return response()->json(['success' => true]);
