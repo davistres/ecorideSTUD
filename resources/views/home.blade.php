@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="dashboard-container">
-        <h1 class="dashboard-title">Mon Espace</h1>
+        <h1 class="dashboard-title">MON ESPACE</h1>
         <div class="dashboard-grid {{ strtolower(str_replace(' ', '-', Auth::user()->role)) }}">
             <!-- Profil -->
             <div
@@ -21,7 +21,7 @@
                             @if ($profile_photo && $profile_photo_mime)
                                 <img src="data:{{ $profile_photo_mime }};base64,{{ $profile_photo }}" alt="Profil">
                             @else
-                                <div class="photo-placeholder">
+                                <div class="driver-photo photo-placeholder">
                                     <i class="fas fa-user"></i>
                                 </div>
                             @endif
@@ -694,8 +694,7 @@
             <div class="modal-body">
                 <p>En revenant au rôle "Passager", vous ne pourrez plus éditer des covoiturages et vous perdrez toutes les
                     informations
-                    enregistrées (préférences, véhicules, vos éventuels covoiturage en cours,etc...). Voulez-vous confirmer
-                    ?</p>
+                    enregistrées (préférences, véhicules, etc...). Voulez-vous confirmer ?</p>
                 <button class="confirm-revert-btn" data-reset-url="{{ route('user.role.reset') }}">Confirmer</button>
             </div>
         </div>
@@ -772,7 +771,7 @@
                                         data-delete-url="{{ route('profile.photo.delete') }}">×</button>
                                 </div>
                             @else
-                                <div class="photo-placeholder">
+                                <div class="driver-photo photo-placeholder">
                                     <i class="fas fa-user"></i>
                                 </div>
                             @endif
@@ -935,14 +934,14 @@
             <div class="modal-body">
                 <div class="warning-message">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <p>ATTENTION! En supprimant votre dernier véhicule enregistré, vous perdrez votre rôle de conducteur,
-                        tous vos éventuels covoiturage en cours, ainsi que toutes les informations lié à ce statut...
+                    <p>ATTENTION! En supprimant votre dernier véhicule enregistré, vous perdrez votre rôle de conducteur
+                        ainsi que toutes les informations lié à ce statut... Ainsi que vos éventuels covoiturage en cours.
                     </p>
                 </div>
                 <p><strong>Êtes-vous sûr de vouloir continuer ?</strong></p>
             </div>
             <div class="modal-footer">
-                <button type="button" id="confirm-delete-last-vehicle" class="btn-confirm-delete">Supprimer et devenir
+                <button type="button" id="confirm-delete-last-vehicle" class="btn-confirm-delete">Supprimer et Devenir
                     Passager</button>
             </div>
         </div>
@@ -1272,7 +1271,6 @@
             </div>
         </div>
     </div>
-
     <!-- Modale de confirmation => suppression d'un véhicule lié à au moins un covoit -->
     <div class="modal" id="vehicleWithTripsModal">
         <div class="modal-content">
@@ -1292,23 +1290,6 @@
                 <div class="form-submit">
                     <button type="button" class="cancel-button modal-close">Annuler</button>
                     <button type="button" class="confirm-delete-vehicle-btn danger-button">Supprimer quand même</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modale de confirmation => suppression d'un véhicule sans covoit -->
-    <div class="modal" id="simpleVehicleDeleteModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Confirmation de suppression</h3>
-                <button class="modal-close">×</button>
-            </div>
-            <div class="modal-body">
-                <p>Vous allez supprimer ce véhicule de votre liste... C'est vraiment ce que vous désirez?</p>
-                <div class="form-submit">
-                    <button type="button" class="cancel-button modal-close">Annuler</button>
-                    <button type="button" class="confirm-simple-delete-btn danger-button">Supprimer</button>
                 </div>
             </div>
         </div>

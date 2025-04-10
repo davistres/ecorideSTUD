@@ -18,8 +18,10 @@
 
     @if (config('app.env') === 'production')
         <link rel="stylesheet" href="{{ secure_asset('css/main.css') }}">
+        <link rel="stylesheet" href="{{ secure_asset('css/suggestions.css') }}">
     @else
         <link rel="stylesheet" href="{{ url('css/main.css') }}">
+        <link rel="stylesheet" href="{{ url('css/suggestions.css') }}">
     @endif
 </head>
 

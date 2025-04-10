@@ -354,23 +354,13 @@ class VehicleController extends Controller
         }
 
         // Récupérer les covoiturages liés à ce véhicule
-        // Erreur => manque la colonne 'completed' dans la table COVOITURAGE
         // Découverte de Carbon::now() => date et l'heure actuelle
-        $now = Carbon::now();
-
-        // Forcer le rechargement (=> base de données) pour éviter les problèmes de cache
         $trips = Covoiturage::where('immat', $immat)
             ->where('driver_id', $chauffeur->driver_id)
             ->where('cancelled', false)
-            ->where('departure_date', '>=', $now->format('Y-m-d'))
+            ->where('completed', false)
+            ->where('departure_date', '>=', Carbon::now()->format('Y-m-d'))
             ->get(['covoit_id', 'city_dep', 'city_arr', 'departure_date']);
-
-        // Log pour débogage
-        \Illuminate\Support\Facades\Log::info('Covoiturages trouvés pour le véhicule ' . $immat, [
-            'count' => $trips->count(),
-            'trips' => $trips->toArray(),
-            'timestamp' => $now->toDateTimeString()
-        ]);
 
         return response()->json([
             'hasTrips' => $trips->count() > 0,

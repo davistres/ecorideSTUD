@@ -3,6 +3,8 @@
 @section('title', 'Covoiturage')
 
 @section('content')
+    <script src="{{ asset('js/date-restriction.js') }}"></script>
+    <script src="{{ asset('js/suggestion-links.js') }}"></script>
     <main class="covoiturage-container">
         <h1 class="covoiturage-title">Rechercher un covoiturage</h1>
 
@@ -33,6 +35,68 @@
                             Essayez plutôt le <strong>{{ date('d/m/Y', strtotime(session('suggested_date'))) }}</strong>
                             <button type="submit" class="suggested-date-btn">Rechercher à cette date</button>
                         </form>
+                    @endif
+
+                    @if (session('suggestions'))
+                        <div class="date-suggestions">
+                            <p>Nous n'avons pas de covoiturage à la date recherchée. Néanmoins, nous en avons
+                                @foreach (session('suggestions') as $index => $suggestion)
+                                    @if ($index == 0)
+                                        @if ($suggestion['count'] > 1)
+                                            {{ $suggestion['count'] }} le <a href="#" class="suggestion-link"
+                                                data-date="{{ $suggestion['date'] }}"
+                                                data-depart="{{ session('lieu_depart') }}"
+                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
+                                            ({{ $suggestion['diff'] }})
+                                        @else
+                                            le <a href="#" class="suggestion-link"
+                                                data-date="{{ $suggestion['date'] }}"
+                                                data-depart="{{ session('lieu_depart') }}"
+                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
+                                            ({{ $suggestion['diff'] }})
+                                        @endif
+                                    @elseif($index == count(session('suggestions')) - 1)
+                                        @if ($suggestion['count'] > 1)
+                                            et {{ $suggestion['count'] }} le <a href="#" class="suggestion-link"
+                                                data-date="{{ $suggestion['date'] }}"
+                                                data-depart="{{ session('lieu_depart') }}"
+                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
+                                            ({{ $suggestion['diff'] }})
+                                        @else
+                                            et le <a href="#" class="suggestion-link"
+                                                data-date="{{ $suggestion['date'] }}"
+                                                data-depart="{{ session('lieu_depart') }}"
+                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
+                                            ({{ $suggestion['diff'] }})
+                                        @endif
+                                    @else
+                                        @if ($suggestion['count'] > 1)
+                                            , {{ $suggestion['count'] }} le <a href="#" class="suggestion-link"
+                                                data-date="{{ $suggestion['date'] }}"
+                                                data-depart="{{ session('lieu_depart') }}"
+                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
+                                            ({{ $suggestion['diff'] }})
+                                        @else
+                                            , le <a href="#" class="suggestion-link"
+                                                data-date="{{ $suggestion['date'] }}"
+                                                data-depart="{{ session('lieu_depart') }}"
+                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
+                                            ({{ $suggestion['diff'] }})
+                                        @endif
+                                    @endif
+                                @endforeach
+                                ... Pourquoi ne pas changer de date si vous êtes flexible?
+                            </p>
+
+                            <!-- Formulaire caché pour les suggestions -->
+                            <form id="suggestion-form" action="{{ route('search.covoiturage') }}" method="POST"
+                                style="display: none;">
+                                @csrf
+                                <input type="hidden" id="suggestion-lieu-depart" name="lieu_depart" value="">
+                                <input type="hidden" id="suggestion-lieu-arrivee" name="lieu_arrivee" value="">
+                                <input type="hidden" id="suggestion-date" name="date" value="">
+                            </form>
+                        </div>
                     @endif
                 </div>
             @endif
@@ -70,22 +134,22 @@
                     <div class="covoiturage-card">
                         <div class="covoiturage-top-info">
                             <div class="covoiturage-driver">
-                                <img src="{{ asset($covoiturage['photo_chauffeur']) }}"
-                                    alt="Photo de {{ $covoiturage['pseudo_chauffeur'] }}" class="driver-photo">
+                                @if ($covoiturage->photo_chauffeur && $covoiturage->photo_chauffeur != 'images/default-avatar.jpg')
+                                    <img src="{{ asset($covoiturage->photo_chauffeur) }}"
+                                        alt="{{ $covoiturage->pseudo_chauffeur }}" class="driver-photo">
+                                @else
+                                    <div class="driver-photo photo-placeholder">
+                                        <i class="fas fa-user svg-inline--fa"></i>
+                                    </div>
+                                @endif
                                 <div class="driver-info">
-                                    <h3>{{ $covoiturage['pseudo_chauffeur'] }}</h3>
+                                    <h3>{{ $covoiturage->pseudo_chauffeur }}</h3>
                                     <div class="driver-rating">
-                                        <span class="rating-value">{{ $covoiturage['note_chauffeur'] }}</span>
+                                        <span class="rating-value">{{ $covoiturage->note_chauffeur }}</span>
                                         <span class="rating-stars">
-                                            @if (is_numeric($covoiturage['note_chauffeur']))
+                                            @if (is_numeric($covoiturage->note_chauffeur))
                                                 @for ($i = 1; $i <= 5; $i++)
-                                                    @if ($i <= floor($covoiturage['note_chauffeur']))
-                                                        <span class="star filled">★</span>
-                                                    @elseif($i - 0.5 <= $covoiturage['note_chauffeur'])
-                                                        <span class="star half-filled">⭐</span>
-                                                    @else
-                                                        <span class="star empty">☆</span>
-                                                    @endif
+                                                    <span class="star filled">★</span>
                                                 @endfor
                                             @else
                                                 <span>Nouveau conducteur</span>
@@ -98,33 +162,33 @@
                             <div class="covoiturage-booking-info">
                                 <div class="trip-seats">
                                     <i class="fas fa-user"></i>
-                                    <span>{{ $covoiturage['places_restantes'] }}
-                                        {{ $covoiturage['places_restantes'] > 1 ? 'places disponibles' : 'place disponible' }}</span>
+                                    <span>{{ $covoiturage->places_restantes }}
+                                        {{ $covoiturage->places_restantes > 1 ? 'places disponibles' : 'place disponible' }}</span>
                                 </div>
                                 <div class="trip-price">
-                                    <span class="price-value">{{ $covoiturage['prix'] }} crédits</span>
+                                    <span class="price-value">{{ $covoiturage->prix }} crédits</span>
                                     <span class="price-per-person">par personne</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="covoiturage-driver">
-                            <img src="{{ asset($covoiturage['photo_chauffeur']) }}"
-                                alt="Photo de {{ $covoiturage['pseudo_chauffeur'] }}" class="driver-photo">
+                            @if ($covoiturage->photo_chauffeur && $covoiturage->photo_chauffeur != 'images/default-avatar.jpg')
+                                <img src="{{ asset($covoiturage->photo_chauffeur) }}"
+                                    alt="{{ $covoiturage->pseudo_chauffeur }}" class="driver-photo">
+                            @else
+                                <div class="driver-photo photo-placeholder">
+                                    <i class="fas fa-user svg-inline--fa"></i>
+                                </div>
+                            @endif
                             <div class="driver-info">
-                                <h3>{{ $covoiturage['pseudo_chauffeur'] }}</h3>
+                                <h3>{{ $covoiturage->pseudo_chauffeur }}</h3>
                                 <div class="driver-rating">
-                                    <span class="rating-value">{{ $covoiturage['note_chauffeur'] }}</span>
+                                    <span class="rating-value">{{ $covoiturage->note_chauffeur }}</span>
                                     <span class="rating-stars">
-                                        @if (is_numeric($covoiturage['note_chauffeur']))
+                                        @if (is_numeric($covoiturage->note_chauffeur))
                                             @for ($i = 1; $i <= 5; $i++)
-                                                @if ($i <= floor($covoiturage['note_chauffeur']))
-                                                    <span class="star filled">★</span>
-                                                @elseif($i - 0.5 <= $covoiturage['note_chauffeur'])
-                                                    <span class="star half-filled">⭐</span>
-                                                @else
-                                                    <span class="star empty">☆</span>
-                                                @endif
+                                                <span class="star filled">★</span>
                                             @endfor
                                         @else
                                             <span>Nouveau conducteur</span>
@@ -139,29 +203,29 @@
                             <div class="trip-info-container">
                                 <div class="trip-info-left">
                                     <div class="trip-route">
-                                        <span class="from">{{ $covoiturage['lieu_depart'] }}</span>
+                                        <span class="from">{{ $covoiturage->lieu_depart }}</span>
                                         <span class="route-arrow">→</span>
-                                        <span class="to">{{ $covoiturage['lieu_arrivee'] }}</span>
+                                        <span class="to">{{ $covoiturage->lieu_arrivee }}</span>
                                     </div>
                                     <div class="trip-date">
                                         <i class="fas fa-calendar"></i>
-                                        {{ date('d/m/Y', strtotime($covoiturage['date_depart'])) }}
+                                        {{ date('d/m/Y', strtotime($covoiturage->date_depart)) }}
                                     </div>
                                 </div>
                                 <div class="trip-time">
                                     <span class="departure-time">
                                         <i class="fas fa-clock"></i>
-                                        Départ: {{ $covoiturage['heure_depart'] }}
+                                        Départ: {{ substr($covoiturage->heure_depart, 0, 5) }}
                                     </span>
                                     <span class="arrival-time">
                                         <i class="fas fa-clock"></i>
-                                        Arrivée: {{ $covoiturage['heure_arrivee'] }}
+                                        Arrivée: {{ substr($covoiturage->heure_arrivee, 0, 5) }}
                                     </span>
                                 </div>
                             </div>
 
-                            <div class="trip-eco-badge {{ $covoiturage['ecologique'] ? 'eco' : 'standard' }}">
-                                @if ($covoiturage['ecologique'])
+                            <div class="trip-eco-badge {{ $covoiturage->ecologique ? 'eco' : 'standard' }}">
+                                @if ($covoiturage->ecologique)
                                     <i class="fas fa-leaf"></i> Voyage écologique
                                 @else
                                     <i class="fas fa-car"></i> Voyage standard
@@ -173,21 +237,21 @@
                         <div class="covoiturage-booking">
                             <div class="trip-seats">
                                 <i class="fas fa-user"></i>
-                                <span>{{ $covoiturage['places_restantes'] }}
-                                    {{ $covoiturage['places_restantes'] > 1 ? 'places disponibles' : 'place disponible' }}</span>
+                                <span>{{ $covoiturage->places_restantes }}
+                                    {{ $covoiturage->places_restantes > 1 ? 'places disponibles' : 'place disponible' }}</span>
                             </div>
 
                             <div class="trip-price">
-                                <span class="price-value">{{ $covoiturage['prix'] }} crédits</span>
+                                <span class="price-value">{{ $covoiturage->prix }} crédits</span>
                                 <span class="price-per-person">par personne</span>
                             </div>
 
                             <div class="booking-buttons">
-                                <a href="{{ route('trips.show', ['id' => $covoiturage['id'] ?? 1]) }}"
+                                <a href="{{ route('trips.show', ['id' => $covoiturage->id ?? 1]) }}"
                                     class="btn-base btn-details">
                                     Détails
                                 </a>
-                                <a href="{{ route('trips.participate', ['id' => $covoiturage['id'] ?? 1]) }}"
+                                <a href="{{ route('trips.participate', ['id' => $covoiturage->id ?? 1]) }}"
                                     class="btn-base btn-participate">
                                     Participer
                                 </a>
@@ -195,11 +259,11 @@
                         </div>
 
                         <div class="mobile-buttons">
-                            <a href="{{ route('trips.show', ['id' => $covoiturage['id'] ?? 1]) }}"
+                            <a href="{{ route('trips.show', ['id' => $covoiturage->id ?? 1]) }}"
                                 class="btn-base btn-details">
                                 Détails
                             </a>
-                            <a href="{{ route('trips.participate', ['id' => $covoiturage['id'] ?? 1]) }}"
+                            <a href="{{ route('trips.participate', ['id' => $covoiturage->id ?? 1]) }}"
                                 class="btn-base btn-participate">
                                 Participer
                             </a>
@@ -225,108 +289,6 @@
                         <li>Les voyages écologiques sont indiqués par un badge vert</li>
                     </ul>
                 </div>
-                <section>
-                    <div class="covoiturage-card">
-                        <div class="covoiturage-top-info">
-                            <div class="covoiturage-driver">
-                                <img src="{{ asset('images/default-avatar.jpg') }}" alt="Photo de JohnDoe"
-                                    class="driver-photo">
-                                <div class="driver-info">
-                                    <h3>JohnDoe</h3>
-                                    <div class="driver-rating">
-                                        <span class="rating-value">4.8</span>
-                                        <span class="rating-stars">⭐⭐⭐⭐⭐</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="covoiturage-booking-info">
-                                <div class="trip-seats">
-                                    <i class="fas fa-user"></i>
-                                    <span>3 places</span>
-                                </div>
-                                <div class="trip-price">
-                                    <span class="price-value">27 crédits</span>
-                                    <span class="price-per-person">par personne</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="covoiturage-driver">
-                            <img src="{{ asset('images/default-avatar.jpg') }}" alt="Photo de JohnDoe"
-                                class="driver-photo">
-                            <div class="driver-info">
-                                <h3>JohnDoe</h3>
-                                <div class="driver-rating">
-                                    <span class="rating-value">4.8</span>
-                                    <span class="rating-stars">⭐⭐⭐⭐⭐</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="covoiturage-details">
-                            <div class="trip-info-container">
-                                <div class="trip-info-left">
-                                    <div class="trip-route">
-                                        <span class="from">Lyon</span>
-                                        <span class="route-arrow">→</span>
-                                        <span class="to">Paris</span>
-                                    </div>
-                                    <div class="trip-date">
-                                        <i class="fas fa-calendar"></i>
-                                        25/03/2025
-                                    </div>
-                                </div>
-                                <div class="trip-time">
-                                    <span class="departure-time">
-                                        <i class="fas fa-clock"></i>
-                                        Départ: 09:45
-                                    </span>
-                                    <span class="arrival-time">
-                                        <i class="fas fa-clock"></i>
-                                        Arrivée: 13:30
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="trip-eco-badge eco">
-                                <i class="fas fa-leaf"></i> Voyage écologique
-                            </div>
-                        </div>
-
-                        <div class="covoiturage-booking">
-                            <div class="trip-seats">
-                                <i class="fas fa-user"></i>
-                                <span>3 places disponibles</span>
-                            </div>
-
-                            <div class="trip-price">
-                                <span class="price-value">27 crédits</span>
-                                <span class="price-per-person">par personne</span>
-                            </div>
-
-                            <div class="booking-buttons">
-                                <a href="{{ route('trips.show', ['id' => 33]) }}" class="btn-base btn-details">
-                                    Détails
-                                </a>
-                                <a href="{{ route('trips.participate', ['id' => 33]) }}"
-                                    class="btn-base btn-participate">
-                                    Participer
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="mobile-buttons">
-                            <a href="{{ route('trips.show', ['id' => 33]) }}" class="btn-base btn-details">
-                                Détails
-                            </a>
-                            <a href="{{ route('trips.participate', ['id' => 33]) }}" class="btn-base btn-participate">
-                                Participer
-                            </a>
-                        </div>
-                    </div>
-
-                </section>
             </div>
 
         @endif

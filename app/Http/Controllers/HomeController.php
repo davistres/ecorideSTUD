@@ -265,14 +265,9 @@ class HomeController extends Controller
             return response()->json(['error' => 'Trajet non trouvé'], 404, [], JSON_INVALID_UTF8_IGNORE);
         }
 
-        DB::beginTransaction();
         try {
             $trip->trip_started = false;
             $trip->trip_completed = true;
-
-            // C'est du bricolage mais pour le moment, je mets le covoit comme annulé pour qu'il n'apparaisse plus dans les requêtes (qui utilisent where('cancelled', false))... Il faudra changer cela après!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            $trip->cancelled = true;
-
             $trip->save();
 
             // formulaires de satisfaction => passagers
@@ -288,10 +283,7 @@ class HomeController extends Controller
             // Ici, créer le code pour envoyer un email qui demande aux passagers de remplir le formulaire de satisfaction
             // A développer si j'ai le temps...
 
-            // Valider la transaction
-            DB::commit();
-
-            return response()->json(['success' => true, 'message' => 'Le trajet a été terminé avec succès.'], 200, [], JSON_INVALID_UTF8_IGNORE);
+            return response()->json(['success' => true], 200, [], JSON_INVALID_UTF8_IGNORE);
         } catch (\Exception $e) {
             $errorMessage = mb_convert_encoding($e->getMessage(), 'UTF-8', 'auto');
             return response()->json(['success' => false, 'message' => 'Erreur : ' . $errorMessage], 200, [], JSON_INVALID_UTF8_IGNORE);
@@ -423,7 +415,7 @@ class HomeController extends Controller
                     'immat' => ['required', 'string', 'max:20', Rule::unique('VOITURE', 'immat')],
                     'couleur' => 'required|string|max:30',
                     'n_place' => 'required|integer|min:2|max:9',
-                    'energie' => 'required|in:Essence,Diesel/Gazole,Electrique,Hybride,GPL',
+                    'energie' => 'required|in:Essence,Diesel,Electrique,Hybride,GPL',
                     'date_first_immat' => 'required|date|before_or_equal:today',
                 ]);
 

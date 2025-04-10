@@ -39,31 +39,6 @@ class LoginController extends Controller
         // Utilisateur normal
         if (Auth::guard('web')->attempt(['mail' => $email, 'password' => $password])) {
             $request->session()->regenerate();
-
-            // middleware CheckUserRole
-            $user = Auth::user();
-            if ($user->role === 'Conducteur' || $user->role === 'Les deux') {
-                $chauffeur = \App\Models\Chauffeur::where('user_id', $user->user_id)->first();
-
-                if (!$chauffeur) {
-                    \Illuminate\Support\Facades\Log::info('Connexion: Utilisateur sans profil chauffeur, changement de rôle en Passager', ['user_id' => $user->user_id]);
-                    \Illuminate\Support\Facades\DB::table('UTILISATEUR')
-                        ->where('user_id', $user->user_id)
-                        ->update(['role' => 'Passager']);
-                } else {
-                    // Vérifier si y a au moins une voiture
-                    $hasVehicles = \App\Models\Voiture::where('driver_id', $chauffeur->driver_id)->exists();
-
-                    if (!$hasVehicles) {
-                        // Pas de véhicule, changer le rôle en Passager
-                        \Illuminate\Support\Facades\Log::info('Connexion: Utilisateur sans véhicule, changement de rôle en Passager', ['user_id' => $user->user_id, 'driver_id' => $chauffeur->driver_id]);
-                        \Illuminate\Support\Facades\DB::table('UTILISATEUR')
-                            ->where('user_id', $user->user_id)
-                            ->update(['role' => 'Passager']);
-                    }
-                }
-            }
-
             return redirect()->intended('/home');
         }
 
@@ -72,5 +47,29 @@ class LoginController extends Controller
         ])->withInput($request->except('password'));
     }
 
+    // Qui est connecté?
+    private function getGuardForUserType($userType)
+    {
+        switch ($userType) {
+            case 'admin':
+                return 'admin';
+            case 'employe':
+                return 'employe';
+            default:
+                return 'web';
+        }
+    }
 
+    // Redirection après connexion
+    private function redirectBasedOnUserType($userType)
+    {
+        switch ($userType) {
+            case 'admin':
+                return redirect()->route('admin.dashboard');
+            case 'employe':
+                return redirect()->route('employe.dashboard');
+            default:
+                return redirect()->intended('/home');
+        }
+    }
 }

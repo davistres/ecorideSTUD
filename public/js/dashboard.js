@@ -27,9 +27,7 @@ function handleFetchResponse(response) {
                      }
                  }
 
-                 // 'trip' dans l'url ? => message spécifique
-                 const url = response.url || '';
-                 if (response.status === 422 && (url.includes('/trip/') || url.includes('/trip') || url.includes('covoiturage'))) {
+                 if (response.status === 422) {
                      message = 'Vous ne pouvez pas créer ce covoiturage car vous ne respectez pas les délais entre l\'heure de la création du covoiturage et l\'heure du départ. Un délai minimum de 4 heures est requis.';
                  }
 
@@ -38,12 +36,8 @@ function handleFetchResponse(response) {
             .catch((parsingError) => {
                 console.error("Erreur parsing JSON:", parsingError);
 
-                // pareil
-                const url = response.url || '';
-                if (response.status === 422 && (url.includes('/trip/') || url.includes('/trip') || url.includes('covoiturage'))) {
+                if (response.status === 422) {
                     throw new Error('Vous ne pouvez pas créer ce covoiturage car vous ne respectez pas les délais entre l\'heure de la création du covoiturage et l\'heure du départ. Un délai minimum de 4 heures est requis.');
-                } else if (response.status === 422) {
-                    throw new Error('Erreur de validation. Veuillez vérifier les informations saisies.');
                 } else {
                     throw new Error(`Erreur HTTP ${response.status}`);
                 }
@@ -64,8 +58,9 @@ function handleFetchError(error) {
     console.error('Erreur Fetch:', error);
 
     let message = error.message || 'Une erreur réseau est survenue.';
-
-    // handleFetchResponse gére déjà les erreurs 422
+    if (message.includes('Erreur HTTP 422')) {
+        message = 'Vous ne pouvez pas créer ce covoiturage car vous ne respectez pas les délais entre l\'heure de la création du covoiturage et l\'heure du départ. Un délai minimum de 4 heures est requis.';
+    }
 
     if (typeof showNotification === 'function') {
         showNotification(message, 'error');
@@ -229,16 +224,24 @@ function handleDeleteVehicleClick() {
             console.log(`Stockage immat ${immat} pour confirmation modale.`);
             lastVehicleModal.classList.add('active');
         } else {
-            console.error('Modale lastVehicleDeleteModal non trouvée');
+            if (confirm("ATTENTION! En supprimant votre dernier véhicule enregistré, vous perdrez votre rôle de conducteur ainsi que toutes les informations lié à ce statut... Ainsi que vos éventuels covoiturage en cours.")) {
+                deleteVehicleAndResetRole(immat);
+            }
         }
     } else {
         // Si ce n'est pas le dernier véhicule =>vérifier s'il est lié à des covoit
         // En fonction, ouvrir la bonne modale
-        checkVehicleTrips(immat, (hasTrips, trips) => {
+        checkVehicleHasTrips(immat, (hasTrips) => {
             if (hasTrips) {
-                showVehicleWithTripsModal(immat, trips, vehicleCard, vehicleCount);
+                // Si le véhicule est lié à au moins un covoit
+                if (confirm('ATTENTION : Si ce véhicule est lié à des covoiturages, ceux-ci seront également supprimés. Êtes-vous sûr de vouloir continuer ?')) {
+                    deleteVehicleSimple(immat, vehicleCard);
+                }
             } else {
-                showSimpleVehicleDeleteModal(immat, vehicleCard);
+                // Pour un véhicule sans covoit
+                if (confirm('Vous allez supprimer ce véhicule de votre liste... C\'est vraiment ce que vous désirez ?')) {
+                    deleteVehicleSimple(immat, vehicleCard);
+                }
             }
         });
     }
@@ -292,35 +295,23 @@ function checkVehicleTrips(immat, callback) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     if (!csrfToken || !immat) {
         console.error('Token CSRF ou immatriculation manquant');
-        // je considère qu'il y a des covoit
-        callback(true, [{
-            covoit_id: 0,
-            city_dep: 'Erreur',
-            city_arr: 'Erreur',
-            departure_date: new Date().toISOString()
-        }]);
+        callback(false, []);
         return;
     }
 
-    // timestamp => pour éviter la mise en cache
-    const timestamp = new Date().getTime();
-    const url = `/vehicles/${immat}/check-trips?_=${timestamp}`;
+    const url = `/vehicles/${immat}/check-trips`;
     console.log(`Appel API: ${url}`);
 
     fetch(url, {
         method: 'GET',
         headers: {
             'X-CSRF-TOKEN': csrfToken,
-            'Accept': 'application/json',
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
+            'Accept': 'application/json'
         }
     })
     .then(response => {
         console.log(`Réponse reçue: ${response.status}`);
         if (!response.ok) {
-            // En cas d'erreur HTTP, je considère qu'il y a des covoiturages
             throw new Error(`Erreur HTTP: ${response.status}`);
         }
         return response.json();
@@ -337,13 +328,7 @@ function checkVehicleTrips(immat, callback) {
     })
     .catch(error => {
         console.error('Erreur lors de la vérification des covoiturages:', error);
-        // Erreur = covoit
-        callback(true, [{
-            covoit_id: 0,
-            city_dep: 'Erreur de vérification',
-            city_arr: 'Contactez l\'administrateur',
-            departure_date: new Date().toISOString()
-        }]);
+        callback(false, []);
     });
 }
 
@@ -368,30 +353,13 @@ function showVehicleWithTripsModal(immat, trips, vehicleCard, vehicleCount) {
         const tripListHtml = document.createElement('ul');
         tripListHtml.className = 'linked-trips';
 
-        // Cheak =>message d'erreur
-        const isErrorMessage = trips.length === 1 && trips[0].covoit_id === 0;
-
-        if (isErrorMessage) {
+        trips.forEach(trip => {
             const li = document.createElement('li');
-            li.className = 'error-message';
-            li.innerHTML = `<span class="trip-route-dash">${trips[0].city_dep}</span> <span class="trip-date">${trips[0].city_arr}</span>`;
+            const departureDate = new Date(trip.departure_date);
+            const formattedDate = departureDate.toLocaleDateString();
+            li.innerHTML = `<span class="trip-route">${trip.city_dep} → ${trip.city_arr}</span> <span class="trip-date">${formattedDate}</span>`;
             tripListHtml.appendChild(li);
-
-            // Message d'avertissement
-            const warningP = document.createElement('p');
-            warningP.className = 'warning-text';
-            warningP.textContent = "Une erreur s'est produite lors de la vérification des covoiturages. Par mesure de sécurité, nous considérons que ce véhicule est lié à des covoiturages.";
-            tripsList.appendChild(warningP);
-        } else {
-            // Liste des covoit
-            trips.forEach(trip => {
-                const li = document.createElement('li');
-                const departureDate = new Date(trip.departure_date);
-                const formattedDate = departureDate.toLocaleDateString();
-                li.innerHTML = `<span class="trip-route">${trip.city_dep} → ${trip.city_arr}</span> <span class="trip-date">${formattedDate}</span>`;
-                tripListHtml.appendChild(li);
-            });
-        }
+        });
 
         tripsList.appendChild(tripListHtml);
     } else {
@@ -535,15 +503,15 @@ function deleteVehicleAndResetRole(immat) {
              showNotification('Véhicule supprimé et rôle mis à jour vers Passager.', 'success');
 
              if (data.cancelledTrips && data.cancelledTrips > 0) {
-                // Si des covoit ont été annulés => afficher la modale de confirmation
+                 // Si des covoit ont été annulés => afficher la modale de confirmation
                  const modal = document.getElementById('vehicleWithTripsModal');
                  const tripsList = document.getElementById('linked-trips-list');
 
                  if (modal && tripsList && data.upcomingTrips > 0) {
-                    // Remplir la liste des covoit
+                     // Remplir la liste des covoit
                      tripsList.innerHTML = `<p>${data.cancelledTrips} covoiturage(s) ont été annulés, dont ${data.upcomingTrips} à venir.</p>`;
 
-                    // Bouton de confirmation pour fermer la modale et recharger la page
+                     // Bouton de confirmation pour fermer la modale et recharger la page
                      const confirmBtn = modal.querySelector('.confirm-delete-vehicle-btn');
                      if (confirmBtn) {
                          confirmBtn.textContent = 'OK';
@@ -555,7 +523,7 @@ function deleteVehicleAndResetRole(immat) {
 
                      modal.classList.add('active');
                  } else {
-                    // Afficher une notification => si pas de modale ou pas de covoiturages à venir
+                     // Afficher une notification => si pas de modale ou pas de covoiturages à venir
                      showNotification(`${data.cancelledTrips} covoiturage(s) lié(s) à ce véhicule ont été annulés.`, 'info');
 
                      setTimeout(() => {
@@ -563,7 +531,7 @@ function deleteVehicleAndResetRole(immat) {
                      }, 1500);
                  }
              } else {
-                 // Si aucun covoit annulé => actualisation de la page
+                // Si aucun covoit annulé => actualisation de la page
                  setTimeout(() => {
                      window.location.reload();
                  }, 1500);
@@ -615,7 +583,7 @@ function handleDeletePhoto() {
             showNotification('Photo de profil supprimée !', 'success');
             const avatarContainer = document.getElementById('profile-avatar-clickable');
             const previewContainer = document.getElementById('photo-preview');
-            const placeholderHtml = '<div class="photo-placeholder"><i class="fas fa-user"></i></div>';
+            const placeholderHtml = '<div class="driver-photo photo-placeholder"><i class="fas fa-user"></i></div>';
             if (avatarContainer) avatarContainer.innerHTML = placeholderHtml;
             if (previewContainer) previewContainer.innerHTML = placeholderHtml;
         } else {
@@ -720,9 +688,10 @@ function initTripButtons() {
             fetch(`/trip/${tripId}/end`, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' } })
             .then(handleFetchResponse).then(data => {
                 if (data.success) {
-                    showNotification(data.message || 'Trajet terminé.', 'success');
+                    showNotification('Trajet terminé.', 'success');
 
                     if (tripCard) {
+
                         tripCard.style.transition = 'opacity 0.3s ease';
                         tripCard.style.opacity = '0';
 
@@ -745,8 +714,7 @@ function initTripButtons() {
                             }
                         }, 300);
                     } else {
-                        // Recharger la page si pas de tripCard
-                        setTimeout(() => window.location.reload(), 1000);
+                        window.location.reload();
                     }
                 }
                 else {
@@ -846,63 +814,11 @@ function initRoleChange() {
             return;
         }
 
-        // Supprime les messages d'erreur
-        modalForm.querySelectorAll('.error-message').forEach(el => el.remove());
-        modalForm.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
-
-        // Désactive le bouton de soumission
-        const submitButton = modalForm.querySelector('button[type="submit"]');
-        if (submitButton) submitButton.disabled = true;
-
         fetch(modalForm.action, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }, body: new FormData(modalForm) })
-        .then(response => {
-            if (response.status === 422) {
-                return response.json().then(data => {
-                    if (data.errors) {
-                        // Afficher les erreurs de validation
-                        Object.keys(data.errors).forEach(field => {
-                            const input = modalForm.querySelector(`[name="${field}"]`);
-                            if (input) {
-                                input.classList.add('error');
-                                const errorMessage = document.createElement('span');
-                                errorMessage.className = 'error-message';
-                                errorMessage.textContent = data.errors[field][0];
-                                input.parentNode.appendChild(errorMessage);
-                                input.focus();
-                            }
-                        });
-
-                        // Message général d'erreur
-                        showNotification('Veuillez corriger les erreurs dans le formulaire.', 'error');
-                    } else if (data.message) {
-                        showNotification(data.message, 'error');
-                    } else {
-                        showNotification('Erreur de validation. Veuillez vérifier les informations saisies.', 'error');
-                    }
-
-                    if (submitButton) submitButton.disabled = false;
-                    throw new Error('Validation failed');
-                });
-            }
-            return handleFetchResponse(response);
-        })
-        .then(data => {
-            if (data.success) {
-                showNotification('Rôle mis à jour!', 'success');
-                roleModal.classList.remove('active');
-                setTimeout(() => window.location.reload(), 1000);
-            }
-            else {
-                showNotification(data.message || 'Erreur.', 'error');
-                if (submitButton) submitButton.disabled = false;
-            }
-        })
-        .catch(error => {
-            if (error.message !== 'Validation failed') {
-                handleFetchError(error);
-                if (submitButton) submitButton.disabled = false;
-            }
-        });
+        .then(handleFetchResponse).then(data => {
+            if (data.success) { showNotification('Rôle mis à jour!', 'success'); roleModal.classList.remove('active'); setTimeout(() => window.location.reload(), 1000); }
+            else { showNotification(data.message || 'Erreur.', 'error'); }
+        }).catch(handleFetchError);
     });
 
     confirmRevertBtn.addEventListener('click', function() {
@@ -1109,7 +1025,7 @@ function initProfilePhotoModal() {
             };
             reader.readAsDataURL(file);
         } else if (!preview.querySelector('img')) {
-             preview.innerHTML = '<div class="photo-placeholder"><i class="fas fa-user"></i></div>';
+             preview.innerHTML = '<div class="driver-photophoto-placeholder"><i class="fas fa-user"></i></div>';
         }
     });
 
@@ -1382,17 +1298,6 @@ function initAddVehicleModal() {
                     const newCard = createVehicleCard(data.vehicle);
                     listDiv.appendChild(newCard);
                     attachVehicleCardListeners(newCard);
-
-                    // Mise à jour du menu déroulant pour les véhicules => formulaire de création de trajet
-                    updateVehicleSelectOptions(data.vehicle, false);
-
-                    // Problème: je ne pouvais pas ajouter plus d'une voiture sans devoir recharger la page manuellement...
-                    form.reset();
-                    form.querySelectorAll('.error-message').forEach(el => el.remove());
-                    form.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
-
-                    // Réactiver le bouton de soumission
-                    if (submitButton) submitButton.disabled = false;
                 } else {
                     window.location.reload();
                 }
@@ -1433,41 +1338,6 @@ function initEditVehicleModal() {
             } else { showNotification(data.message || 'Erreur MAJ.', 'error'); }
         }).catch(handleFetchError);
     });
-}
-
-//Problème, si on entre un véhicule, on ne peut pas directement le sélectionner dans le menu déroulant du formulaire de création de covoit
-// Solution => Mise à jour
-function updateVehicleSelectOptions(vehicleData, showNotifications = true) {
-    const vehicleSelects = document.querySelectorAll('select[name="immat"]');
-    let optionsAdded = 0;
-
-    vehicleSelects.forEach(select => {
-        // Check si l'option existe déjà
-        const existingOption = Array.from(select.options).find(option => option.value === vehicleData.immat);
-
-        if (!existingOption) {
-            // Créer une nouvelle option
-            const option = document.createElement('option');
-            option.value = vehicleData.immat;
-            option.setAttribute('data-seats', vehicleData.n_place);
-            option.textContent = `${vehicleData.brand} ${vehicleData.model} (${vehicleData.immat})`;
-
-            // Ajout de l'option au menu déroulant
-            select.appendChild(option);
-
-            select.value = vehicleData.immat;
-
-            // Mise à jour des places disponibles
-            const changeEvent = new Event('change');
-            select.dispatchEvent(changeEvent);
-
-            optionsAdded++;
-        }
-    });
-
-    if (showNotifications && optionsAdded > 0) {
-        showNotification('Nouveau véhicule ajouté et sélectionné dans le formulaire', 'success');
-    }
 }
 
 // Ecouteurs des modales véhicules => édition et suppression
@@ -1519,6 +1389,7 @@ function initCreateTripModal() {
 
         const selectedOption = vehicleSelect.options[vehicleSelect.selectedIndex];
         if (!selectedOption) return;
+
 
         const vehicleId = selectedOption.value;
         const vehicleSeats = parseInt(selectedOption.getAttribute('data-seats') || '0');
@@ -1657,6 +1528,7 @@ function initCreateTripModal() {
                 arrivalDate.min = today; // Empeche la sélection de dates passées
             }
 
+
             // Mise à jour des place dispo
             updateAvailableSeats();
 
@@ -1669,7 +1541,7 @@ function initCreateTripModal() {
 
     }
 
-    // si arrival_date actif => définir la date minimale à la date de départ (forcer cela)
+     // si arrival_date actif => définir la date minimale à la date de départ (forcer cela)
     if (departureDate) {
         departureDate.addEventListener('change', function() {
             validateDepartureDateTime();
@@ -2098,43 +1970,6 @@ function initVehicleWithTripsModal() {
     }
 }
 
-// Modale pour la confirmation de la suppr d'un véhicule sans covoit
-function showSimpleVehicleDeleteModal(immat, vehicleCard) {
-    const modal = document.getElementById('simpleVehicleDeleteModal');
-    const confirmBtn = modal.querySelector('.confirm-simple-delete-btn');
-
-    if (!modal || !confirmBtn) {
-        console.error('Impossible de trouver les éléments de la modale simple');
-        return;
-    }
-
-    console.log('Affichage de la modale de confirmation simple pour la suppression d\'un véhicule');
-
-    confirmBtn.onclick = () => {
-        modal.classList.remove('active');
-        deleteVehicleSimple(immat, vehicleCard);
-    };
-
-    modal.classList.add('active');
-
-    const closeButtons = modal.querySelectorAll('.modal-close');
-    closeButtons.forEach(button => {
-        button.onclick = () => {
-            modal.classList.remove('active');
-        };
-    });
-}
-
-
-// Initialisation de la modale (=> suppr d'un véhicule sans covoit)
-function initSimpleVehicleDeleteModal() {
-    const modal = document.getElementById('simpleVehicleDeleteModal');
-    if (modal) {
-        initModalClose(modal);
-        console.log("Modale de confirmation simple pour la suppression d'un véhicule initialisée.");
-    }
-}
-
 //Initialisation Principale /////////////////////////////////////////////////////////////////////////////////////////////////////
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Initialisation du dashboard...");
@@ -2155,7 +1990,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initCreateTripModal();
     initEditTripModal();
     initVehicleWithTripsModal();
-    initSimpleVehicleDeleteModal();
 
     console.log("Dashboard initialisé.");
 });
