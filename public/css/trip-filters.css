@@ -1,0 +1,156 @@
+/* Styles pour la section filtre */
+.filters-section {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filters-title {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.filters-container {
+    display: flex;
+    gap: 20px;
+}
+
+.filter-group {
+    flex: 1 1 300px;
+    margin-bottom: 15px;
+}
+
+.filter-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    text-align: center;
+}
+
+.filter-label-checkbox {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.filter-checkbox {
+    margin-right: 8px;
+}
+
+.filter-text {
+    vertical-align: middle;
+}
+
+.filter-range {
+    width: 100%;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #ddd;
+    outline: none;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.filter-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #2ecc71;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.filter-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: #2ecc71;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+
+#duration-value {
+    display: flex;
+    justify-content: center;
+    color: inherit;
+    font-weight: inherit;
+}
+
+.range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.rating-filter {
+    display: flex;
+    gap: 5px;
+}
+
+.filter-rating-flex {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.rating-filter .star {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.rating-filter .star.active {
+    color: #f39c12;
+}
+
+/* Responsive design */
+@media (max-width: 1072px) {
+    .filters-container {
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        flex: 1 1 calc(50% - 20px);
+        min-width: 250px;
+    }
+}
+
+
+
+
+@media (max-width: 768px) {
+    .filters-container {
+        flex-direction: column;
+    }
+
+    .filter-group {
+        flex: 1 1 100%;
+    }
+}
+
+/* Animation pour les éléments filtrés */
+.covoiturage-card {
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.covoiturage-card.filtered-out {
+    opacity: 0;
+    transform: scale(0.95);
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    pointer-events: none;
+}

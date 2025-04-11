@@ -1207,7 +1207,7 @@
 .modal-close {
     border: none;
     background: none;
-    font-size: 1rem;
+    font-size: 2rem;
     cursor: pointer;
     color: #7f8c8d;
 }

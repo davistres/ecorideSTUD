@@ -3,84 +3,81 @@
 @section('title', 'Covoiturage')
 
 @section('content')
+    <link rel="stylesheet" href="{{ asset('css/trip-filters.css') }}">
     <script src="{{ asset('js/date-restriction.js') }}"></script>
     <script src="{{ asset('js/suggestion-links.js') }}"></script>
+    <script src="{{ asset('js/profile-photo-sync.js') }}"></script>
+    <script src="{{ asset('js/trip-filters.js') }}"></script>
     <main class="covoiturage-container">
         <h1 class="covoiturage-title">Rechercher un covoiturage</h1>
 
         <section class="search-section">
             <!-- Gestion des messages -->
-            @if (session('error'))
+            @if (isset($error))
                 <div class="error-message">
-                    {{ session('error') }}
+                    {{ $error }}
                 </div>
             @endif
 
-            @if (session('success'))
+            @if (isset($success))
                 <div class="alert-success">
-                    {{ session('success') }}
+                    {{ $success }}
                 </div>
             @endif
 
-            @if (session('info'))
+            @if (isset($info))
                 <div class="info-message">
-                    {{ session('info') }}
+                    {{ $info }}
 
-                    @if (session('suggested_date'))
+                    @if (isset($suggested_date))
                         <form action="{{ route('search.covoiturage') }}" method="POST" class="suggested-date-form">
                             @csrf
-                            <input type="hidden" name="lieu_depart" value="{{ session('lieu_depart') }}">
-                            <input type="hidden" name="lieu_arrivee" value="{{ session('lieu_arrivee') }}">
-                            <input type="hidden" name="date" value="{{ session('suggested_date') }}">
-                            Essayez plutôt le <strong>{{ date('d/m/Y', strtotime(session('suggested_date'))) }}</strong>
+                            <input type="hidden" name="lieu_depart" value="{{ $lieu_depart }}">
+                            <input type="hidden" name="lieu_arrivee" value="{{ $lieu_arrivee }}">
+                            <input type="hidden" name="date" value="{{ $suggested_date }}">
+                            Essayez plutôt le <strong>{{ date('d/m/Y', strtotime($suggested_date)) }}</strong>
                             <button type="submit" class="suggested-date-btn">Rechercher à cette date</button>
                         </form>
                     @endif
 
-                    @if (session('suggestions'))
+                    @if (isset($suggestions))
                         <div class="date-suggestions">
                             <p>Nous n'avons pas de covoiturage à la date recherchée. Néanmoins, nous en avons
-                                @foreach (session('suggestions') as $index => $suggestion)
+                                @foreach ($suggestions as $index => $suggestion)
                                     @if ($index == 0)
                                         @if ($suggestion['count'] > 1)
                                             {{ $suggestion['count'] }} le <a href="#" class="suggestion-link"
-                                                data-date="{{ $suggestion['date'] }}"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
+                                                data-date="{{ $suggestion['date'] }}" data-depart="{{ $lieu_depart }}"
+                                                data-arrivee="{{ $lieu_arrivee }}">{{ $suggestion['formatted_date'] }}</a>
                                             ({{ $suggestion['diff'] }})
                                         @else
                                             le <a href="#" class="suggestion-link"
-                                                data-date="{{ $suggestion['date'] }}"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
+                                                data-date="{{ $suggestion['date'] }}" data-depart="{{ $lieu_depart }}"
+                                                data-arrivee="{{ $lieu_arrivee }}">{{ $suggestion['formatted_date'] }}</a>
                                             ({{ $suggestion['diff'] }})
                                         @endif
-                                    @elseif($index == count(session('suggestions')) - 1)
+                                    @elseif($index == count($suggestions) - 1)
                                         @if ($suggestion['count'] > 1)
                                             et {{ $suggestion['count'] }} le <a href="#" class="suggestion-link"
-                                                data-date="{{ $suggestion['date'] }}"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
+                                                data-date="{{ $suggestion['date'] }}" data-depart="{{ $lieu_depart }}"
+                                                data-arrivee="{{ $lieu_arrivee }}">{{ $suggestion['formatted_date'] }}</a>
                                             ({{ $suggestion['diff'] }})
                                         @else
                                             et le <a href="#" class="suggestion-link"
-                                                data-date="{{ $suggestion['date'] }}"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
+                                                data-date="{{ $suggestion['date'] }}" data-depart="{{ $lieu_depart }}"
+                                                data-arrivee="{{ $lieu_arrivee }}">{{ $suggestion['formatted_date'] }}</a>
                                             ({{ $suggestion['diff'] }})
                                         @endif
                                     @else
                                         @if ($suggestion['count'] > 1)
                                             , {{ $suggestion['count'] }} le <a href="#" class="suggestion-link"
-                                                data-date="{{ $suggestion['date'] }}"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
+                                                data-date="{{ $suggestion['date'] }}" data-depart="{{ $lieu_depart }}"
+                                                data-arrivee="{{ $lieu_arrivee }}">{{ $suggestion['formatted_date'] }}</a>
                                             ({{ $suggestion['diff'] }})
                                         @else
                                             , le <a href="#" class="suggestion-link"
-                                                data-date="{{ $suggestion['date'] }}"
-                                                data-depart="{{ session('lieu_depart') }}"
-                                                data-arrivee="{{ session('lieu_arrivee') }}">{{ $suggestion['formatted_date'] }}</a>
+                                                data-date="{{ $suggestion['date'] }}" data-depart="{{ $lieu_depart }}"
+                                                data-arrivee="{{ $lieu_arrivee }}">{{ $suggestion['formatted_date'] }}</a>
                                             ({{ $suggestion['diff'] }})
                                         @endif
                                     @endif
@@ -107,35 +104,38 @@
                 <div class="form-group">
                     <label for="lieu_depart">Départ</label>
                     <input type="text" id="lieu_depart" name="lieu_depart" placeholder="Ville de départ" required
-                        value="{{ old('lieu_depart') ?? request('lieu_depart') }}">
+                        value="{{ old('lieu_depart') ?? ($lieu_depart ?? request('lieu_depart')) }}">
                 </div>
                 <div class="form-group">
                     <label for="lieu_arrivee">Arrivée</label>
                     <input type="text" id="lieu_arrivee" name="lieu_arrivee" placeholder="Ville d'arrivée" required
-                        value="{{ old('lieu_arrivee') ?? request('lieu_arrivee') }}">
+                        value="{{ old('lieu_arrivee') ?? ($lieu_arrivee ?? request('lieu_arrivee')) }}">
                 </div>
                 <div class="form-group">
                     <label for="date">Date</label>
                     <input type="date" id="date" name="date" required
-                        value="{{ old('date') ?? request('date') }}">
+                        value="{{ old('date') ?? ($date_recherche ?? request('date')) }}">
                 </div>
                 <button type="submit" class="search-button">Rechercher un trajet</button>
             </form>
         </section>
 
-        @if (session()->has('covoiturages') && count(session('covoiturages')) > 0)
+        <!-- Section des filtres -->
+        @include('trips.partials.filters')
+
+        @if (isset($covoiturages) && count($covoiturages) > 0)
             <div class="results-title">
                 <h2>Trajets disponibles</h2>
-                <p>{{ count(session('covoiturages')) }} résultat(s) trouvé(s)</p>
+                <p>{{ count($covoiturages) }} résultat(s) trouvé(s)</p>
             </div>
 
             <section class="covoiturage-list">
-                @foreach (session('covoiturages') as $covoiturage)
-                    <div class="covoiturage-card">
+                @foreach ($covoiturages as $covoiturage)
+                    <div class="covoiturage-card" data-max-travel-time="{{ $covoiturage->max_travel_time ?? 120 }}">
                         <div class="covoiturage-top-info">
                             <div class="covoiturage-driver">
-                                @if ($covoiturage->photo_chauffeur && $covoiturage->photo_chauffeur != 'images/default-avatar.jpg')
-                                    <img src="{{ asset($covoiturage->photo_chauffeur) }}"
+                                @if ($covoiturage->has_photo && $covoiturage->photo_chauffeur_data)
+                                    <img src="{{ $covoiturage->photo_chauffeur_data }}"
                                         alt="{{ $covoiturage->pseudo_chauffeur }}" class="driver-photo">
                                 @else
                                     <div class="driver-photo photo-placeholder">
@@ -173,8 +173,8 @@
                         </div>
 
                         <div class="covoiturage-driver">
-                            @if ($covoiturage->photo_chauffeur && $covoiturage->photo_chauffeur != 'images/default-avatar.jpg')
-                                <img src="{{ asset($covoiturage->photo_chauffeur) }}"
+                            @if ($covoiturage->has_photo && $covoiturage->photo_chauffeur_data)
+                                <img src="{{ $covoiturage->photo_chauffeur_data }}"
                                     alt="{{ $covoiturage->pseudo_chauffeur }}" class="driver-photo">
                             @else
                                 <div class="driver-photo photo-placeholder">

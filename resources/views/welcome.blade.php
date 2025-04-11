@@ -5,6 +5,7 @@
 @section('content')
     <script src="{{ asset('js/date-restriction.js') }}"></script>
     <script src="{{ asset('js/suggestion-links.js') }}"></script>
+    <script src="{{ asset('js/profile-photo-sync.js') }}"></script>
     <section class="hero">
         <h1>Bienvenue sur EcoRide</h1>
         <p>La plateforme de covoiturage écologique</p>
