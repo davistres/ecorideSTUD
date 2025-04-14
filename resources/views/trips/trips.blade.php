@@ -3,11 +3,12 @@
 @section('title', 'Covoiturage')
 
 @section('content')
-    <link rel="stylesheet" href="{{ asset('css/trip-filters.css') }}">
     <script src="{{ asset('js/date-restriction.js') }}"></script>
     <script src="{{ asset('js/suggestion-links.js') }}"></script>
     <script src="{{ asset('js/profile-photo-sync.js') }}"></script>
     <script src="{{ asset('js/trip-filters.js') }}"></script>
+    <script src="{{ asset('js/trip-details-modal.js') }}"></script>
+    <script src="{{ asset('js/rating-stars.js') }}"></script>
     <main class="covoiturage-container">
         <h1 class="covoiturage-title">Rechercher un covoiturage</h1>
 
@@ -147,11 +148,8 @@
                                     <div class="driver-rating">
                                         <span class="rating-value">{{ $covoiturage->note_chauffeur }}</span>
                                         <span class="rating-stars">
-                                            @if (is_numeric($covoiturage->note_chauffeur))
-                                                @for ($i = 1; $i <= 5; $i++)
-                                                    <span class="star filled">★</span>
-                                                @endfor
-                                            @else
+                                            <!-- C'est le JS qui génére les étoiles -->
+                                            @if (!is_numeric($covoiturage->note_chauffeur))
                                                 <span>Nouveau conducteur</span>
                                             @endif
                                         </span>
@@ -186,11 +184,8 @@
                                 <div class="driver-rating">
                                     <span class="rating-value">{{ $covoiturage->note_chauffeur }}</span>
                                     <span class="rating-stars">
-                                        @if (is_numeric($covoiturage->note_chauffeur))
-                                            @for ($i = 1; $i <= 5; $i++)
-                                                <span class="star filled">★</span>
-                                            @endfor
-                                        @else
+                                        <!-- C'est le JS qui génére les étoiles -->
+                                        @if (!is_numeric($covoiturage->note_chauffeur))
                                             <span>Nouveau conducteur</span>
                                         @endif
                                     </span>
@@ -248,7 +243,7 @@
 
                             <div class="booking-buttons">
                                 <a href="{{ route('trips.show', ['id' => $covoiturage->id ?? 1]) }}"
-                                    class="btn-base btn-details">
+                                    class="btn-base btn-details" data-id="{{ $covoiturage->id ?? 1 }}">
                                     Détails
                                 </a>
                                 <a href="{{ route('trips.participate', ['id' => $covoiturage->id ?? 1]) }}"
@@ -260,7 +255,7 @@
 
                         <div class="mobile-buttons">
                             <a href="{{ route('trips.show', ['id' => $covoiturage->id ?? 1]) }}"
-                                class="btn-base btn-details">
+                                class="btn-base btn-details" data-id="{{ $covoiturage->id ?? 1 }}">
                                 Détails
                             </a>
                             <a href="{{ route('trips.participate', ['id' => $covoiturage->id ?? 1]) }}"
@@ -294,4 +289,7 @@
         @endif
 
     </main>
+
+    <!-- Inclure la modale => détails des covoit -->
+    @include('trips.trip-details-modal')
 @endsection

@@ -135,6 +135,9 @@
     text-align: center;
 }
 
+
+/* Notation (star)*/
+
 .driver-rating {
     display: flex;
     align-items: center;
@@ -149,6 +152,7 @@
     color: #f39c12;
 }
 
+
 .rating-stars {
     color: #f39c12;
     letter-spacing: 2px;
@@ -156,6 +160,8 @@
 
 .star {
     display: inline-block;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
 }
 
 .star.filled {
@@ -165,11 +171,18 @@
 .star.half-filled {
     position: relative;
     color: #f39c12;
+    background: linear-gradient(90deg, #f39c12 50%, #dddddd 50%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .star.empty {
     color: #dddddd;
 }
+
+
+
+
 
 /* Section détails */
 .covoiturage-details {
@@ -222,6 +235,13 @@
     text-align: left;
     margin-bottom: 0.5rem;
 }
+
+.fa-calendar, .fa-clock {
+    margin-right: 0.4rem;
+}
+
+
+
 
 .trip-time {
     display: flex;
@@ -358,7 +378,7 @@
 }
 
 /* Les cacher en ORDI */
-@media (min-width: 821px) {
+@media (min-width: 820px) {
     .covoiturage-top-info,
     .mobile-buttons {
         display: none;
@@ -421,7 +441,7 @@
 }
 
 /* Adaptation pour les très petits écrans/////////////////// */
-@media (max-width: 500px) {
+@media (max-width: 580px) {
     .covoiturage-title {
         font-size: 1.8rem;
     }

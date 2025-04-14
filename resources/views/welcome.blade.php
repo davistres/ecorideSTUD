@@ -6,6 +6,8 @@
     <script src="{{ asset('js/date-restriction.js') }}"></script>
     <script src="{{ asset('js/suggestion-links.js') }}"></script>
     <script src="{{ asset('js/profile-photo-sync.js') }}"></script>
+    <script src="{{ asset('js/trip-details-modal.js') }}"></script>
+    <script src="{{ asset('js/rating-stars.js') }}"></script>
     <section class="hero">
         <h1>Bienvenue sur EcoRide</h1>
         <p>La plateforme de covoiturage écologique</p>
@@ -191,11 +193,8 @@
                             <div class="driver-rating">
                                 <span class="rating-value">{{ $covoiturage->note_chauffeur }}</span>
                                 <span class="rating-stars">
-                                    @if (is_numeric($covoiturage->note_chauffeur))
-                                        @for ($i = 1; $i <= 5; $i++)
-                                            <span class="star filled">★</span>
-                                        @endfor
-                                    @else
+                                    <!-- C'est le JS qui génére les étoiles -->
+                                    @if (!is_numeric($covoiturage->note_chauffeur))
                                         <span>Nouveau conducteur</span>
                                     @endif
                                 </span>
@@ -253,7 +252,7 @@
 
                         <div class="booking-buttons">
                             <a href="{{ route('trips.show', ['id' => $covoiturage->id ?? 1]) }}"
-                                class="btn-base btn-details">
+                                class="btn-base btn-details" data-id="{{ $covoiturage->id ?? 1 }}">
                                 Détails
                             </a>
                             <a href="{{ route('trips.participate', ['id' => $covoiturage->id ?? 1]) }}"
@@ -264,8 +263,8 @@
                     </div>
 
                     <div class="mobile-buttons">
-                        <a href="{{ route('trips.show', ['id' => $covoiturage->id ?? 1]) }}"
-                            class="btn-base btn-details">
+                        <a href="{{ route('trips.show', ['id' => $covoiturage->id ?? 1]) }}" class="btn-base btn-details"
+                            data-id="{{ $covoiturage->id ?? 1 }}">
                             Détails
                         </a>
                         <a href="{{ route('trips.participate', ['id' => $covoiturage->id ?? 1]) }}"
@@ -308,4 +307,7 @@
             </div>
         </div>
     </section>
+
+    <!-- Inclure la modale => détails des covoit -->
+    @include('trips.trip-details-modal')
 @endsection

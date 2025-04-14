@@ -282,7 +282,6 @@
     font-weight: 500;
     width: 100%;
     cursor: pointer;
-    transition: all 0.3s ease;
 }
 
 .recharge-btn:hover {
@@ -512,12 +511,6 @@
     font-weight: 500;
     color: #2c3e50;
 }
-
-.rating-value {
-    font-weight: bold;
-    color: #f39c12;
-}
-
 
 .trip-status {
     display: flex;
@@ -845,13 +838,6 @@
     flex-shrink: 0;
 }
 
-/* Problème de hoverflow... hoverflow: hidden n'a pas marché!!!! J'ai du demander de l'aide pour le solutionner*/
-/* En trois étapes*/
-.preference-item.preference-libre {
-    width: 100%;
-}
-/* Prends toute la largeur en taille mobile*/
-
 .preference-text {
     flex: 1;
     min-width: 0; /* Très important pour le wrapping */
@@ -884,10 +870,6 @@
 
 
 @media (max-width: 420px) {
-    .preferences-list {
-        flex-direction: column;
-    }
-
     .preference-item {
         flex: 1 0 100%;
         flex-direction: column;

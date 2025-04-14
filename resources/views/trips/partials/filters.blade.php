@@ -30,7 +30,7 @@
                 <label for="duration-filter" class="filter-label">Durée maximale: <span id="duration-value"></span>
                 </label>
                 <input type="range" id="duration-filter" class="filter-range" min="{{ $min_duration }}"
-                    max="{{ $max_duration }}" value="{{ $max_duration }}" step="5">
+                    max="{{ $max_duration }}" value="{{ $max_duration }}" step="1">
                 <div class="range-labels">
                     <span class="range-min">{{ $min_duration_formatted }}</span>
                     <span class="range-max">{{ $max_duration_formatted }}</span>

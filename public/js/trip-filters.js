@@ -39,16 +39,22 @@ document.addEventListener('DOMContentLoaded', function() {
     function timeToMinutes(timeString) {
         if (!timeString) return 120; // Valeur par défaut/////////////////
 
+        // Si c'est déjà un nombre, le retourner tel quel
+        if (!isNaN(timeString)) {
+            return Math.ceil(parseFloat(timeString));
+        }
+
+        // Format HH:MM:SS ou HH:MM
         const parts = timeString.split(':');
         if (parts.length >= 2) {
             const hours = parseInt(parts[0], 10) || 0;
             const minutes = parseInt(parts[1], 10) || 0;
-            return hours * 60 + minutes;
-        }
+            const seconds = parts.length > 2 ? parseInt(parts[2], 10) || 0 : 0;
 
-        // Si c'est déjà un nombre, le retourner tel quel
-        if (!isNaN(timeString)) {
-            return parseInt(timeString, 10);
+            // Calcule du total en minute (avec arrondi sup pour éviter les problèmes d'arrondi)
+            const totalMinutes = Math.ceil(hours * 60 + minutes + seconds / 60);
+            console.log(`Conversion de ${timeString} en ${totalMinutes} minutes`);
+            return totalMinutes;
         }
 
         return 120; // Valeur par défaut//////////////////////
@@ -59,6 +65,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (durationValue && durationFilter) {
             const minutes = parseInt(durationFilter.value);
             durationValue.textContent = formatDuration(minutes);
+            console.log('Valeur du slider de durée:', minutes);
+            console.log('Valeur maximale du slider:', durationFilter.max);
         }
     }
 
@@ -69,17 +77,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const maxDuration = parseInt(durationFilter.value);
         const minRating = parseInt(ratingFilter.value);
 
+        console.log('Valeurs des filtres:');
+        console.log('- Filtre écologique actif:', isEcoFilterActive);
+        console.log('- Prix maximum:', maxPrice);
+        console.log('- Durée maximale:', maxDuration);
+        console.log('- Note minimale:', minRating);
+        console.log('- Valeur max du slider de durée:', durationFilter.max);
+
         let visibleCount = 0;
 
         covoiturageCards.forEach(card => {
             // Récupérer les infos du covoit
             const isEco = card.querySelector('.trip-eco-badge.eco') !== null;
             const priceText = card.querySelector('.price-value').textContent;
-            const price = parseInt(priceText.match(/\d+/)[0]);
+            const priceMatch = /\d+/.exec(priceText);
+            const price = priceMatch ? parseInt(priceMatch[0]) : 0;
 
             // Récupérer la durée max
             const durationAttr = card.getAttribute('data-max-travel-time') || 120;
             const duration = timeToMinutes(durationAttr);
+
+            console.log('Carte:', card);
+            console.log('Durée de la carte (minutes):', duration);
+            console.log('Durée maximale du filtre (minutes):', maxDuration);
 
             // Récupérer la note du conducteur
             let rating = card.querySelector('.rating-value').textContent;
@@ -88,7 +108,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Appliquer les filtres
             const passesEcoFilter = !isEcoFilterActive || isEco;
             const passesPriceFilter = price <= maxPrice;
-            const passesDurationFilter = duration <= maxDuration;
+            // PROBLEME le filtre ne va pas jusqu'au bout!!!! => ajout d'une marge de 5 minutes en +
+            const isMaxDuration = maxDuration === parseInt(durationFilter.max);
+            const passesDurationFilter = isMaxDuration || duration <= (maxDuration + 5);
+            console.log('Passe le filtre de durée:', passesDurationFilter, duration, maxDuration, 'isMaxDuration:', isMaxDuration);
             const passesRatingFilter = rating >= minRating;
 
             // Afficher ou masquer covoiturage-card en fonction des filtres
@@ -102,6 +125,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Maj compteur
         updateResultsCount();
+
+        // Maj des étoiles après le filtrage
+        if (typeof updateAllRatingStars === 'function') {
+            updateAllRatingStars();
+        }
 
         const noResultsMessage = document.querySelector('.no-results-message');
         if (visibleCount === 0) {
@@ -213,7 +241,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         covoiturageCards.forEach(card => {
             const priceText = card.querySelector('.price-value').textContent;
-            const price = parseInt(priceText.match(/\d+/)[0]);
+            const priceMatch = /\d+/.exec(priceText);
+            const price = priceMatch ? parseInt(priceMatch[0]) : 0;
 
             if (firstPrice === null) {
                 firstPrice = price;

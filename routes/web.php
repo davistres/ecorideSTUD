@@ -105,6 +105,9 @@ Route::post('/search-covoiturage', 'App\Http\Controllers\TripsController@search'
 Route::get('/covoiturage/{id}', 'App\Http\Controllers\TripsController@show')->name('trips.show');
 Route::get('/covoiturage/{id}/participate', 'App\Http\Controllers\TripsController@participate')->name('trips.participate');
 
+// API pour les détails d'un covoit
+Route::get('/api/trips/{id}/details', 'App\Http\Controllers\Api\TripDetailsController@getDetails')->name('api.trips.details');
+
 // Création et gestion des covoit
 Route::post('/trip', [TripController::class, 'store'])->middleware('auth')->name('trip.store');
 Route::get('/trip/{id}/edit', [TripController::class, 'edit'])->middleware('auth')->name('trip.edit');

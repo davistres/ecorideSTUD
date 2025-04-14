@@ -141,9 +141,6 @@
 }
 
 /* Animation pour les éléments filtrés */
-.covoiturage-card {
-    transition: opacity 0.3s, transform 0.3s;
-}
 
 .covoiturage-card.filtered-out {
     opacity: 0;

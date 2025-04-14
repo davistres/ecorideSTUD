@@ -7,6 +7,9 @@
 @import 'auth.css';
 @import 'trips.css';
 @import 'pages.css';
+@import 'trip-details-modal.css';
+@import 'trip-filters.css';
+@import 'suggestions.css';
 
 label {
     margin-top: 15px;
