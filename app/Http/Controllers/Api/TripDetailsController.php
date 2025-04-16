@@ -25,10 +25,13 @@ class TripDetailsController extends Controller
                 return $this->getTestData($id);
             }
 
-            $reviews = Satisfaction::where('covoit_id', $id)
+            // Avis pour le chauffeur de ce covoit
+            $driverId = $covoiturage->driver_id;
+            $reviews = Satisfaction::where('driver_id', $driverId)
                 ->whereNotNull('review')
                 ->whereNotNull('note')
                 ->with('utilisateur:user_id,pseudo')
+                ->orderBy('date', 'desc')
                 ->get();
 
             $placesRestantes = $covoiturage->n_tickets - $covoiturage->confirmations->count();
@@ -95,6 +98,7 @@ class TripDetailsController extends Controller
                     'satisfaction_id' => 1,
                     'user_id' => 2,
                     'covoit_id' => $id,
+                    'driver_id' => 1,
                     'feeling' => true,
                     'comment' => null,
                     'review' => 'Très bon conducteur, ponctuel et sympathique !',
@@ -102,13 +106,14 @@ class TripDetailsController extends Controller
                     'date' => '2025-03-15',
                     'utilisateur' => [
                         'user_id' => 2,
-                        'pseudo' => 'dada'
+                        'pseudo' => 'PassOne'
                     ]
                 ],
                 [
                     'satisfaction_id' => 2,
                     'user_id' => 3,
                     'covoit_id' => $id,
+                    'driver_id' => 1,
                     'feeling' => true,
                     'comment' => null,
                     'review' => 'Bonne expérience, je recommande !',
@@ -116,7 +121,67 @@ class TripDetailsController extends Controller
                     'date' => '2025-03-20',
                     'utilisateur' => [
                         'user_id' => 3,
-                        'pseudo' => 'damdav1'
+                        'pseudo' => 'PassTwo'
+                    ]
+                ],
+                [
+                    'satisfaction_id' => 3,
+                    'user_id' => 4,
+                    'covoit_id' => 5,
+                    'driver_id' => 1,
+                    'feeling' => true,
+                    'comment' => null,
+                    'review' => 'Voyage très agréable',
+                    'note' => 5,
+                    'date' => '2025-02-10',
+                    'utilisateur' => [
+                        'user_id' => 4,
+                        'pseudo' => 'PassThree'
+                    ]
+                ],
+                [
+                    'satisfaction_id' => 4,
+                    'user_id' => 5,
+                    'covoit_id' => 6,
+                    'driver_id' => 1,
+                    'feeling' => false,
+                    'comment' => null,
+                    'review' => 'Conduite un peu brusque',
+                    'note' => 3,
+                    'date' => '2025-01-05',
+                    'utilisateur' => [
+                        'user_id' => 5,
+                        'pseudo' => 'PassFour'
+                    ]
+                ],
+                [
+                    'satisfaction_id' => 5,
+                    'user_id' => 6,
+                    'covoit_id' => 8,
+                    'driver_id' => 1,
+                    'feeling' => true,
+                    'comment' => null,
+                    'review' => 'Parfait, à l\'heure et très sympa',
+                    'note' => 5,
+                    'date' => '2025-04-01',
+                    'utilisateur' => [
+                        'user_id' => 6,
+                        'pseudo' => 'PassFive'
+                    ]
+                ],
+                [
+                    'satisfaction_id' => 6,
+                    'user_id' => 7,
+                    'covoit_id' => 9,
+                    'driver_id' => 1,
+                    'feeling' => true,
+                    'comment' => null,
+                    'review' => 'Excellent service',
+                    'note' => 5,
+                    'date' => '2024-12-15',
+                    'utilisateur' => [
+                        'user_id' => 7,
+                        'pseudo' => 'PassSix'
                     ]
                 ]
             ]

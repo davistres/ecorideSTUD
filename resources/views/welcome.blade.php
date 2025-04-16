@@ -8,6 +8,7 @@
     <script src="{{ asset('js/profile-photo-sync.js') }}"></script>
     <script src="{{ asset('js/trip-details-modal.js') }}"></script>
     <script src="{{ asset('js/rating-stars.js') }}"></script>
+    <script src="{{ asset('js/participate-buttons.js') }}"></script>
     <section class="hero">
         <h1>Bienvenue sur EcoRide</h1>
         <p>La plateforme de covoiturage écologique</p>
@@ -251,7 +252,7 @@
                         </div>
 
                         <div class="booking-buttons">
-                            <a href="{{ route('trips.show', ['id' => $covoiturage->id ?? 1]) }}"
+                            <a href="{{ route('trips.confirm', ['id' => $covoiturage->id ?? 1]) }}"
                                 class="btn-base btn-details" data-id="{{ $covoiturage->id ?? 1 }}">
                                 Détails
                             </a>
@@ -263,8 +264,8 @@
                     </div>
 
                     <div class="mobile-buttons">
-                        <a href="{{ route('trips.show', ['id' => $covoiturage->id ?? 1]) }}" class="btn-base btn-details"
-                            data-id="{{ $covoiturage->id ?? 1 }}">
+                        <a href="{{ route('trips.confirm', ['id' => $covoiturage->id ?? 1]) }}"
+                            class="btn-base btn-details" data-id="{{ $covoiturage->id ?? 1 }}">
                             Détails
                         </a>
                         <a href="{{ route('trips.participate', ['id' => $covoiturage->id ?? 1]) }}"

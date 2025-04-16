@@ -1403,7 +1403,6 @@
 .trip-detail-btn, .trip-passengers-btn, .trip-start-btn, .trip-end-btn,
 .recharge-btn, .search-trips-btn, .add-vehicle-btn, .create-trip-btn,
 .form-btn, .role-submit-btn {
-    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
 }

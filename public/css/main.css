@@ -10,6 +10,9 @@
 @import 'trip-details-modal.css';
 @import 'trip-filters.css';
 @import 'suggestions.css';
+@import 'conf.css';
+@import 'loading-indicators.css';
+@import 'reviews-slider.css';
 
 label {
     margin-top: 15px;

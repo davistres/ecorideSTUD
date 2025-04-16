@@ -57,27 +57,73 @@ function fetchTripDetails(tripId) {
 
     console.log('Récupération des détails du covoiturage:', tripId);
 
+    // Modale avec indicateur de chargement
     modal.classList.add('active');
-    document.getElementById('modal-reviews-list').innerHTML = '<div class="loading">Chargement des détails...</div>';
+
+    document.getElementById('modal-loading').style.display = 'flex';
+    document.getElementById('modal-content').style.display = 'none';
+    document.getElementById('modal-button-loading').style.display = 'flex';
+    document.getElementById('modal-participate-btn').style.display = 'none';
+    document.getElementById('modal-reviews-list').innerHTML = '<div class="loading">Chargement des avis...</div>';
 
     const apiUrl = `/api/trips/${tripId}/details`;
     console.log('URL de l\'API:', apiUrl);
 
-    fetch(apiUrl)
-        .then(response => {
-            console.log('Réponse de l\'API:', response.status);
+    // En même temps: détails du covoit + role de l'utilisateur
+    Promise.all([
+        fetch(apiUrl).then(response => {
             if (!response.ok) {
                 throw new Error(`Erreur lors de la récupération des détails: ${response.status}`);
             }
             return response.json();
+        }),
+        fetch(`/api/user/status?trip_id=${tripId}`).then(response => {
+            if (!response.ok) {
+                throw new Error(`Erreur lors de la vérification du statut: ${response.status}`);
+            }
+            return response.json();
         })
-        .then(data => {
-            populateModalWithData(data);
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            document.getElementById('modal-reviews-list').innerHTML = '<div class="error">Erreur lors du chargement des détails</div>';
-        });
+    ])
+    .then(([tripData, userData]) => {
+        // Remplir la modale avec les données
+        populateModalWithData(tripData);
+
+        // Maj du btn Participer
+        updateModalButton(userData, tripId);
+
+        // Enlever => indicateurs de chargement
+        document.getElementById('modal-loading').style.display = 'none';
+        document.getElementById('modal-content').style.display = 'block';
+        document.getElementById('modal-button-loading').style.display = 'none';
+        document.getElementById('modal-participate-btn').style.display = 'inline-block';
+
+        // PROBLEME => next-btn disable au chargement de la modale...
+        // SOLUTION => Initialiser les btn avec un délai QUE pour la modale
+        // + Forcer la mise à jour des btn du slider après affichage de la modale
+        setTimeout(() => {
+            const sliderNav = modal.querySelector('.slider-nav');
+            if (sliderNav) {
+                const reviewsSlider = modal.querySelector('.reviews-slider');
+                const prevBtn = sliderNav.querySelector('.prev-btn');
+                const nextBtn = sliderNav.querySelector('.next-btn');
+
+                if (reviewsSlider && prevBtn && nextBtn) {
+                    prevBtn.disabled = reviewsSlider.scrollLeft <= 0;
+                    nextBtn.disabled = reviewsSlider.scrollLeft >= reviewsSlider.scrollWidth - reviewsSlider.clientWidth - 10;
+                    console.log('État des boutons du slider mis à jour après affichage du modal');
+                }
+            }
+        }, 500);
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        document.getElementById('modal-loading').style.display = 'none';
+        document.getElementById('modal-content').style.display = 'block';
+        document.getElementById('modal-reviews-list').innerHTML = '<div class="error">Erreur lors du chargement des détails</div>';
+        document.getElementById('modal-button-loading').style.display = 'none';
+        document.getElementById('modal-participate-btn').style.display = 'inline-block';
+        document.getElementById('modal-participate-btn').textContent = 'Participer';
+    });
 }
 
 function populateModalWithData(data) {
@@ -209,17 +255,36 @@ function populateModalWithData(data) {
     }
 
     try {
+        console.log('Traitement des reviews dans trip-details-modal.js');
         const reviewsList = document.getElementById('modal-reviews-list');
+
+        if (!reviewsList) {
+            console.error('Conteneur modal-reviews-list non trouvé');
+            return;
+        }
+
+        console.log('Conteneur modal-reviews-list trouvé');
         reviewsList.innerHTML = '';
 
         if (data.reviews && data.reviews.length > 0) {
-            data.reviews.forEach(review => {
+            console.log(`${data.reviews.length} reviews trouvées dans les données`);
+
+            data.reviews.forEach((review, index) => {
+                console.log(`Création de la review-card ${index + 1}/${data.reviews.length}`);
                 const reviewCard = createReviewCard(review);
                 reviewsList.appendChild(reviewCard);
             });
 
-            updateCarouselArrows();
+            console.log('Vérification de la fonction setupSimpleSlider:', typeof setupSimpleSlider);
+            // Init du slider
+            if (typeof setupSimpleSlider === 'function') {
+                console.log('Appel de setupSimpleSlider');
+                setupSimpleSlider(reviewsList);
+            } else {
+                console.error('Fonction setupSimpleSlider non disponible');
+            }
         } else {
+            console.log('Aucune review trouvée dans les données');
             reviewsList.innerHTML = '<div class="no-reviews">Aucun avis pour ce conducteur</div>';
         }
 
@@ -245,11 +310,11 @@ function createReviewCard(review) {
 
     const author = document.createElement('span');
     author.className = 'review-author';
-    author.textContent = review.utilisateur.pseudo;
+    author.textContent = review.utilisateur ? review.utilisateur.pseudo : 'Anonyme';
 
     const date = document.createElement('span');
     date.className = 'review-date';
-    date.textContent = formatDate(new Date(review.date));
+    date.textContent = review.date ? formatDate(new Date(review.date)) : '';
 
     header.appendChild(author);
     header.appendChild(date);
@@ -260,7 +325,7 @@ function createReviewCard(review) {
 
     const content = document.createElement('div');
     content.className = 'review-content';
-    content.textContent = review.review;
+    content.textContent = review.review || '';
 
     card.appendChild(header);
     card.appendChild(rating);
@@ -347,4 +412,13 @@ function generateStars(rating) {
     }
 
     return starsHtml;
+}
+
+// Maj du btn Participer => modale
+function updateModalButton(userData, tripId) {
+    const modalParticipateBtn = document.getElementById('modal-participate-btn');
+    if (modalParticipateBtn) {
+        modalParticipateBtn.textContent = userData.button_text;
+        modalParticipateBtn.href = userData.can_participate ? `/covoiturage/${tripId}/participate` : userData.redirect_to;
+    }
 }

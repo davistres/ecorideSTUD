@@ -45,4 +45,9 @@ class Satisfaction extends Model
     {
         return $this->hasOne(Litige::class, 'satisfaction_id');
     }
+
+    public function chauffeur()
+    {
+        return $this->belongsTo(Chauffeur::class, 'driver_id');
+    }
 }

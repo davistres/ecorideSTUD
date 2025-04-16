@@ -102,11 +102,14 @@ Route::delete('/vehicles/{immat}/reset-role', [VehicleController::class, 'destro
 // Routes pour les covoit
 Route::get('/covoiturage', 'App\Http\Controllers\TripsController@index')->name('trips.index');
 Route::post('/search-covoiturage', 'App\Http\Controllers\TripsController@search')->name('search.covoiturage');
-Route::get('/covoiturage/{id}', 'App\Http\Controllers\TripsController@show')->name('trips.show');
+Route::get('/covoiturage/{id}', 'App\Http\Controllers\TripsController@show')->name('trips.confirm');
 Route::get('/covoiturage/{id}/participate', 'App\Http\Controllers\TripsController@participate')->name('trips.participate');
 
 // API pour les détails d'un covoit
 Route::get('/api/trips/{id}/details', 'App\Http\Controllers\Api\TripDetailsController@getDetails')->name('api.trips.details');
+
+// API pour check le role de l'utilisateur
+Route::get('/api/user/status', 'App\Http\Controllers\Api\UserStatusController@getStatus')->name('api.user.status');
 
 // Création et gestion des covoit
 Route::post('/trip', [TripController::class, 'store'])->middleware('auth')->name('trip.store');

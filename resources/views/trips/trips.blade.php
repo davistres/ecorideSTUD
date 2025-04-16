@@ -9,7 +9,8 @@
     <script src="{{ asset('js/trip-filters.js') }}"></script>
     <script src="{{ asset('js/trip-details-modal.js') }}"></script>
     <script src="{{ asset('js/rating-stars.js') }}"></script>
-    <main class="covoiturage-container">
+    <script src="{{ asset('js/participate-buttons.js') }}"></script>
+    <div class="covoiturage-container">
         <h1 class="covoiturage-title">Rechercher un covoiturage</h1>
 
         <section class="search-section">
@@ -242,7 +243,7 @@
                             </div>
 
                             <div class="booking-buttons">
-                                <a href="{{ route('trips.show', ['id' => $covoiturage->id ?? 1]) }}"
+                                <a href="{{ route('trips.confirm', ['id' => $covoiturage->id ?? 1]) }}"
                                     class="btn-base btn-details" data-id="{{ $covoiturage->id ?? 1 }}">
                                     Détails
                                 </a>
@@ -254,7 +255,7 @@
                         </div>
 
                         <div class="mobile-buttons">
-                            <a href="{{ route('trips.show', ['id' => $covoiturage->id ?? 1]) }}"
+                            <a href="{{ route('trips.confirm', ['id' => $covoiturage->id ?? 1]) }}"
                                 class="btn-base btn-details" data-id="{{ $covoiturage->id ?? 1 }}">
                                 Détails
                             </a>
@@ -288,7 +289,7 @@
 
         @endif
 
-    </main>
+    </div>
 
     <!-- Inclure la modale => détails des covoit -->
     @include('trips.trip-details-modal')

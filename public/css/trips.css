@@ -2,7 +2,7 @@
 .covoiturage-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 40px 20px 60px 40px;
+    padding: 40px 40px 60px 40px;
 }
 
 .covoiturage-title {
@@ -330,19 +330,19 @@
 }
 
 /* Styles spécifiques pour chaque type de bouton */
-.btn-details {
+.btn-participate {
     background-color: #2ecc71;
 }
 
-.btn-details:hover {
+.btn-participate:hover {
     background-color: #27ae60;
 }
 
-.btn-participate {
+.btn-details {
     background-color: #3498db;
 }
 
-.btn-participate:hover {
+.btn-details:hover {
     background-color: #2980b9;
 }
 

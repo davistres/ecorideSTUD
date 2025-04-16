@@ -383,7 +383,7 @@
                                             </div>
                                         </div>
                                         <div class="trip-card-footer">
-                                            <a href="{{ route('trips.show', $reservation->covoiturage->covoit_id) }}"
+                                            <a href="{{ route('trips.confirm', $reservation->covoiturage->covoit_id) }}"
                                                 class="trip-detail-btn">Détails</a>
                                             <form action="{{ route('reservation.cancel', $reservation->conf_id) }}"
                                                 method="POST" class="cancel-form">

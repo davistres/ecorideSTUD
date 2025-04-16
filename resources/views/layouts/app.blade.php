@@ -121,14 +121,15 @@
         </div>
     </footer>
 
-    <!-- <script defer src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script> -->
-    <script defer src="{{ asset('js/main.js') }}"></script>
-    <script defer src="{{ asset('js/navbar.js') }}"></script>
-    <script defer src="{{ asset('js/forms.js') }}"></script>
-    <!-- <script defer src="{{ asset('js/map.js') }}"></script> -->
-    <script defer src="{{ asset('js/covoiturage.js') }}"></script>
-    <script src="{{ asset('js/dashboard.js') }}"></script>
+    <script src="https://hammerjs.github.io/dist/hammer.js"></script>
+    <!-- Pour le slider des reviews, je me suis basé sur ce modèle https://codepen.io/leusrox/pen/RgJKJx que j'ai essayé d'adapter à mon projet => Licensed under the MIT license => qui utilise donc la bibliothèque Hammer.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ asset('js/navbar.js') }}"></script>
+    <script src="{{ asset('js/forms.js') }}"></script>
+    <script src="{{ asset('js/reviews-slider.js') }}"></script>
+    <script src="{{ asset('js/covoiturage.js') }}"></script>
+    <script src="{{ asset('js/dashboard.js') }}"></script>
     @yield('scripts')
 </body>
 

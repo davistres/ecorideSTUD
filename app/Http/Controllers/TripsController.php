@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Covoiturage;
+use App\Models\Chauffeur;
+use App\Models\Utilisateur;
 
 class TripsController extends Controller
 {
@@ -475,14 +479,107 @@ class TripsController extends Controller
 
     public function show($id)
     {
-        // Afficher les détails d'un covoit => à faire
-        return view('trips.show', ['id' => $id]);
+        // Afficher les détails d'un covoit
+        $covoiturage = Covoiturage::with([
+            'chauffeur.utilisateur',
+            'voiture',
+            'confirmations',
+        ])->find($id);
+
+        if (!$covoiturage) {
+            return redirect()->route('trips.index')
+                ->with('error', 'Le covoiturage demandé n\'existe pas.');
+        }
+
+        $reviews = DB::table('SATISFACTION')
+            ->where('covoit_id', $id)
+            ->whereNotNull('review')
+            ->whereNotNull('note')
+            ->join('UTILISATEUR', 'SATISFACTION.user_id', '=', 'UTILISATEUR.user_id')
+            ->select('SATISFACTION.*', 'UTILISATEUR.pseudo')
+            ->get();
+
+        $placesRestantes = $covoiturage->n_tickets - $covoiturage->confirmations->count();
+
+        $userStatus = $this->checkUserStatus($covoiturage->price);
+
+        return view('trips.confirm', [
+            'covoiturage' => $covoiturage,
+            'reviews' => $reviews,
+            'places_restantes' => $placesRestantes,
+            'userStatus' => $userStatus
+        ]);
     }
 
     public function participate($id)
     {
-        // code pour participer à un covoiturage => à faire
-        return redirect()->route('trips.show', ['id' => $id])
-            ->with('success', 'Votre demande de participation a été enregistrée.');
+        // Récupérer le covoit
+        $covoiturage = Covoiturage::find($id);
+
+        if (!$covoiturage) {
+            return redirect()->route('trips.index')
+                ->with('error', 'Le covoiturage demandé n\'existe pas.');
+        }
+
+        if (!Auth::check()) {
+            return redirect()->route('login')
+                ->with('info', 'Vous devez vous connecter pour participer à un covoiturage.');
+        }
+
+        $user = Auth::user();
+
+        // Vérifier le rôle
+        if ($user->role === 'Conducteur') {
+            return redirect()->route('home')
+                ->with('info', 'Vous devez avoir le rôle "Passager" ou "Les deux" pour participer à un covoiturage.');
+        }
+
+        // Assez de rédit
+        if ($user->n_credit < $covoiturage->price) {
+            return redirect()->route('home')
+                ->with('info', 'Vous n\'avez pas assez de crédits pour participer à ce covoiturage.');
+        }
+
+        // Si tout est OK! => page confirm
+        return redirect()->route('trips.confirm', ['id' => $id]);
+    }
+
+   // Connecté? Utilisateur? Assez de crédit?
+    private function checkUserStatus($tripPrice)
+    {
+        $status = [
+            'can_participate' => false,
+            'message' => '',
+            'redirect_to' => '',
+            'button_text' => 'Participer'
+        ];
+
+        if (!Auth::check()) {
+            $status['message'] = 'Vous devez vous connecter pour participer à un covoiturage.';
+            $status['redirect_to'] = route('login');
+            $status['button_text'] = 'Se connecter / s\'inscrire';
+            return $status;
+        }
+
+        $user = Auth::user();
+
+        if ($user->role === 'Conducteur') {
+            $status['message'] = 'Vous devez avoir le rôle "Passager" ou "Les deux" pour participer à un covoiturage.';
+            $status['redirect_to'] = route('home');
+            $status['button_text'] = 'Changer de rôle / devenir "Passager"';
+            return $status;
+        }
+
+        if ($user->n_credit < $tripPrice) {
+            $status['message'] = 'Vous n\'avez pas assez de crédits pour participer à ce covoiturage.';
+            $status['redirect_to'] = route('home');
+            $status['button_text'] = 'Recharger votre crédit';
+            return $status;
+        }
+
+        // Si tout est OK
+        $status['can_participate'] = true;
+        $status['button_text'] = 'Participer';
+        return $status;
     }
 }
