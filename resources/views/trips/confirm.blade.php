@@ -150,9 +150,39 @@
             </div>
         </div>
 
-        <div>
-            <div class="form-submit-confirm">
-                <button type="submit" class="next-confirm  role-submit-btn">Confirmer</button>
+        <div class="form-submit-confirm">
+            <button type="submit" id="first-confirm-btn" class="next-confirm  role-submit-btn">Confirmer</button>
+        </div>
+    </div>
+
+    <!-- Modale conf paiement -->
+    <div class="modal" id="paymentConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmation de paiement</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="block-confirm">
+                    <div class="trip-info-confirm bolb-trip-info-confirm">
+                        <p>Vos crédits actuels : <span class="credit-cost"
+                                id="current-credits">{{ Auth::user()->n_credit }}</span> crédits</p>
+                        <p>Coût du trajet : <span id="trip-cost"></span> crédits</p>
+                        <p>Crédits restants : <span class="credit-cost" id="remaining-credits"></span> crédits</p>
+                    </div>
+
+                    <div class="message-avert">
+                        <p>En validant, vous allez confirmer votre participation à ce covoiturage.
+                            Vos crédits seront donc déduits et votre inscription à ce trajet programmée.</p>
+                        <p>Vous pourrez néanmoins l'annuler et revoir toutes les informations le concernant depuis votre
+                            espace utilisateur.</p>
+                    </div>
+
+                    <div class="form-submit-confirm">
+                        <button type="button" class="final-confirm role-submit-btn" id="final-confirm-btn">En
+                            route</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

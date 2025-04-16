@@ -1,6 +1,7 @@
 // Charger les données du covoit dans la page confirm
 document.addEventListener("DOMContentLoaded", function() {
     initTripConfirmPage();
+    initPaymentConfirmModal();
 });
 
 function initTripConfirmPage() {
@@ -301,4 +302,67 @@ function updateCarouselArrows() {
 
     const maxScrollLeft = reviewsList.scrollWidth - reviewsList.clientWidth;
     nextArrow.disabled = Math.abs(reviewsList.scrollLeft - maxScrollLeft) < 10;
+}
+
+// Modale =>confirm paiement
+function initPaymentConfirmModal() {
+    const confirmBtn = document.getElementById('first-confirm-btn');
+    const paymentModal = document.getElementById('paymentConfirmModal');
+    const tripCostElement = document.getElementById('trip-cost');
+    const currentCreditsElement = document.getElementById('current-credits');
+    const remainingCreditsElement = document.getElementById('remaining-credits');
+    const finalConfirmBtn = document.getElementById('final-confirm-btn');
+
+    if (!confirmBtn || !paymentModal) {
+        console.error('Éléments de la modale de paiement non trouvés');
+        return;
+    }
+
+    console.log('Initialisation de la modale de confirmation de paiement');
+
+
+    confirmBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+
+        // Récuperer le prix
+        const tripPrice = document.getElementById('modal-price').textContent;
+        const currentCredits = parseInt(currentCreditsElement.textContent);
+
+        tripCostElement.textContent = tripPrice;
+
+        // Calcule => crédits restants
+        const remainingCredits = currentCredits - parseInt(tripPrice);
+        remainingCreditsElement.textContent = remainingCredits;
+
+        paymentModal.classList.add('active');
+        console.log('Modale de confirmation de paiement ouverte');
+    });
+
+    const closeBtn = paymentModal.querySelector('.modal-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            paymentModal.classList.remove('active');
+        });
+    }
+
+    paymentModal.addEventListener('click', function(event) {
+        if (event.target === paymentModal) {
+            paymentModal.classList.remove('active');
+        }
+    });
+
+    // Confirm final
+    if (finalConfirmBtn) {
+        finalConfirmBtn.addEventListener('click', function() {
+            console.log('Confirmation finale de participation');
+
+            paymentModal.classList.remove('active');
+
+            // Confirmation
+            alert('Votre participation a été confirmée. Vous allez être redirigé vers votre tableau de bord.');
+
+            // => dashboard
+            window.location.href = '/dashboard';
+        });
+    }
 }
