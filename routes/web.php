@@ -104,6 +104,7 @@ Route::get('/covoiturage', 'App\Http\Controllers\TripsController@index')->name('
 Route::post('/search-covoiturage', 'App\Http\Controllers\TripsController@search')->name('search.covoiturage');
 Route::get('/covoiturage/{id}', 'App\Http\Controllers\TripsController@show')->name('trips.confirm');
 Route::get('/covoiturage/{id}/participate', 'App\Http\Controllers\TripsController@participate')->name('trips.participate');
+Route::post('/trips/{id}/participate', 'App\Http\Controllers\TripsController@confirmParticipation')->name('trips.confirm.participation');
 
 // API pour les détails d'un covoit
 Route::get('/api/trips/{id}/details', 'App\Http\Controllers\Api\TripDetailsController@getDetails')->name('api.trips.details');

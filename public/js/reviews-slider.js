@@ -119,6 +119,38 @@ function setupSimpleSlider(container) {
         updateButtonState();
     });
 
+    // Défilement à la souris
+    let isMouseDown = false;
+    let startX;
+    let scrollLeft;
+
+    sliderContainer.addEventListener('mousedown', (e) => {
+        isMouseDown = true;
+        sliderContainer.style.cursor = 'grabbing';
+        startX = e.pageX - sliderContainer.offsetLeft;
+        scrollLeft = sliderContainer.scrollLeft;
+    });
+
+    sliderContainer.addEventListener('mouseleave', () => {
+        isMouseDown = false;
+        sliderContainer.style.cursor = 'grab';
+    });
+
+    sliderContainer.addEventListener('mouseup', () => {
+        isMouseDown = false;
+        sliderContainer.style.cursor = 'grab';
+    });
+
+    sliderContainer.addEventListener('mousemove', (e) => {
+        if (!isMouseDown) return;
+        e.preventDefault();
+        const x = e.pageX - sliderContainer.offsetLeft;
+        const walk = (x - startX) * 2;
+        sliderContainer.scrollLeft = scrollLeft - walk;
+        currentScroll = sliderContainer.scrollLeft;
+        updateButtonState();
+    });
+
     // PROBLEME => next-btn disable au chargement de la modale...
     // SOLUTION => Initialiser les btn avec un délai QUE pour la modale
     if (container.id === 'modal-reviews-list') {

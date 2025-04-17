@@ -582,4 +582,104 @@ class TripsController extends Controller
         $status['button_text'] = 'Participer';
         return $status;
     }
+
+    public function confirmParticipation($id)
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vous devez être connecté pour participer à un covoiturage.'
+            ], 401);
+        }
+
+        $user = Auth::user();
+        $covoiturage = Covoiturage::find($id);
+
+        if (!$covoiturage) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Le covoiturage demandé n\'existe pas.'
+            ], 404);
+        }
+
+        // Check si le covoit est annulé ou terminé
+        if ($covoiturage->cancelled || $covoiturage->trip_completed) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ce covoiturage n\'est plus disponible.'
+            ], 400);
+        }
+
+        // Check le role de l'utilisateur
+        if ($user->role === 'Conducteur') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vous devez avoir le rôle "Passager" ou "Les deux" pour participer à un covoiturage.'
+            ], 400);
+        }
+
+        // Check si il a assez de crédits
+        if ($user->n_credit < $covoiturage->price) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vous n\'avez pas assez de crédits pour participer à ce covoiturage.'
+            ], 400);
+        }
+
+        // Check n place
+        $placesRestantes = $covoiturage->n_tickets - DB::table('CONFIRMATION')
+            ->where('covoit_id', $id)
+            ->count();
+
+        if ($placesRestantes <= 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Il n\'y a plus de places disponibles pour ce covoiturage.'
+            ], 400);
+        }
+
+        // Check si il n'a pas déjà réservé ce covoit
+        $dejaReserve = DB::table('CONFIRMATION')
+            ->where('covoit_id', $id)
+            ->where('user_id', $user->user_id)
+            ->exists();
+
+        if ($dejaReserve) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vous avez déjà réservé ce covoiturage.'
+            ], 400);
+        }
+
+        try {
+            // Débiter les crédits
+            $nouveauCredit = $user->n_credit - $covoiturage->price;
+
+            DB::table('UTILISATEUR')
+                ->where('user_id', $user->user_id)
+                ->update(['n_credit' => $nouveauCredit]);
+
+            // Créer une confirmation
+            DB::table('CONFIRMATION')->insert([
+                'covoit_id' => $id,
+                'user_id' => $user->user_id
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Votre participation a été confirmée avec succès.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la confirmation de participation', [
+                'user_id' => $user->user_id,
+                'covoit_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Une erreur est survenue lors de la confirmation de votre participation.'
+            ], 500);
+        }
+    }
 }

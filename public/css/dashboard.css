@@ -538,6 +538,7 @@
     padding: 1rem;
     background-color: #f9f9f9;
     border-top: 1px solid #f0f0f0;
+    align-items: center;
 }
 
 @media (max-width: 480px) {
@@ -562,6 +563,7 @@
     display: flex;
     gap: 1rem;
     align-items: center;
+    justify-content: space-between;
 }
 
 .trip-detail-btn, .trip-passengers-btn, .trip-start-btn, .trip-end-btn, .trip-edit-btn {
@@ -866,10 +868,9 @@
         transform: rotate(90deg);
         margin: 0.5rem 0;
     }
-}
 
 
-@media (max-width: 420px) {
+
     .preference-item {
         flex: 1 0 100%;
         flex-direction: column;
@@ -1618,3 +1619,56 @@
     background-color: #c0392b;
 }
 
+
+/* Trajets à venir */
+.booked-trips-widget .trip-driver{
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.booked-trips-widget .driver-label {
+    display: none;
+}
+
+.booked-trips-widget .driver-name {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+@media (max-width: 820px) {
+    .booked-trips-widget .trip-route {
+        justify-content: center;
+    }
+
+    .booked-trips-widget .trip-date {
+        text-align: center;
+    }
+
+    .booked-trips-widget .trip-time {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 480px) {
+    .booked-trips-widget .trip-card-footer {
+        flex-direction: row;
+    }
+}
+
+@media (max-width: 360px) {
+    .booked-trips-widget .trip-time {
+        flex-direction: column;
+    }
+
+    .booked-trips-widget .trip-card-footer {
+        flex-direction: column;
+    }
+
+    .booked-trips-widget .trip-detail-btn {
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
+        justify-content: center;
+    }
+}

@@ -354,15 +354,63 @@ function initPaymentConfirmModal() {
     // Confirm final
     if (finalConfirmBtn) {
         finalConfirmBtn.addEventListener('click', function() {
-            console.log('Confirmation finale de participation');
+            // Récupérer l'ID du covoit
+            const pathParts = window.location.pathname.split('/');
+            const tripId = pathParts[pathParts.length - 1];
 
-            paymentModal.classList.remove('active');
+            if (!tripId) {
+                console.error('ID du covoiturage non trouvé dans l\'URL');
+                return;
+            }
 
-            // Confirmation
-            alert('Votre participation a été confirmée. Vous allez être redirigé vers votre tableau de bord.');
+            // Token CSRF
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (!csrfToken) {
+                console.error('Token CSRF non trouvé');
+                return;
+            }
 
-            // => dashboard
-            window.location.href = '/dashboard';
+            finalConfirmBtn.disabled = true;
+            finalConfirmBtn.textContent = 'Traitement en cours...';
+
+            // Confirmer la participation
+            fetch(`/trips/${tripId}/participate`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erreur lors de la confirmation: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Réponse du serveur:', data);
+
+                paymentModal.classList.remove('active');
+
+                if (data.success) {
+                    // Confirmation
+                    alert('Votre participation a été confirmée. Vous allez être redirigé vers votre tableau de bord.');
+
+                    // => dashboard
+                    window.location.href = '/dashboard';
+                } else {
+                    alert(data.message || 'Une erreur est survenue lors de la confirmation de votre participation.');
+                    finalConfirmBtn.disabled = false;
+                    finalConfirmBtn.textContent = 'En route';
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue lors de la confirmation de votre participation.');
+                finalConfirmBtn.disabled = false;
+                finalConfirmBtn.textContent = 'En route';
+            });
         });
     }
 }

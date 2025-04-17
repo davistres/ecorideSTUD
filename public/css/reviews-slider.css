@@ -12,12 +12,12 @@
   flex-wrap: nowrap;
   overflow-x: auto;
   scroll-behavior: smooth;
-
   padding: 10px 0;
   margin: 0 -10px;
   gap: 15px;
   width: 100%;
   position: relative;
+  cursor: grab;
 }
 
 
@@ -182,3 +182,8 @@
     width: 200px;
   }
 }
+
+  /* Masquer la barre de défilement */
+  .reviews-slider::-webkit-scrollbar {
+    display: none;
+  }
